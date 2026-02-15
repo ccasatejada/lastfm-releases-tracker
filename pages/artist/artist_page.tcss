@@ -1,0 +1,61 @@
+ArtistPage {
+    layout: horizontal;
+    height: 1fr;
+}
+
+ArtistListSection {
+    width: 40%;
+    height: 100%;
+    padding: 1;
+}
+
+ArtistListSection DataTable {
+    height: 1fr;
+}
+
+ArtistDetailSection {
+    width: 60%;
+    height: 100%;
+    padding: 1;
+    overflow-y: auto;
+}
+
+#detail-placeholder {
+    width: 100%;
+    height: 100%;
+    content-align: center middle;
+    color: $text-muted;
+}
+
+#artist-header {
+    height: auto;
+    width: 1fr;
+    padding-bottom: 1;
+}
+
+#artist-thumb {
+    width: 100%;
+    height: 14;
+}
+
+#artist-name {
+    text-style: bold;
+    width: 1fr;
+    content-align-vertical: middle;
+}
+
+.section-title {
+    text-style: bold;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+#artist-users {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#release-table {
+    height: auto;
+    max-height: 50%;
+}

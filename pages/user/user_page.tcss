@@ -1,0 +1,112 @@
+AddUserBar {
+    height: auto;
+    layout: horizontal;
+    padding: 1 2;
+}
+
+AddUserBar Input {
+    width: 1fr;
+}
+
+AddUserBar Button {
+    margin-left: 1;
+}
+
+UserSection {
+    height: auto;
+    padding: 0 2;
+}
+
+UserSection DataTable {
+    height: auto;
+    max-height: 16;
+}
+
+#edit-bar {
+    height: auto;
+    margin-top: 1;
+}
+
+#edit-bar.hidden {
+    display: none;
+}
+
+#edit-bar Input {
+    width: 1fr;
+}
+
+#edit-bar Button {
+    margin-left: 1;
+}
+
+#password-input {
+    margin-top: 1;
+}
+
+#password-input.hidden {
+    display: none;
+}
+
+#fetch-bar {
+    height: 4;
+    margin-left: 1;
+    margin-top: 1;
+}
+
+#fetch-bar.hidden {
+    display: none;
+}
+
+#fetch-btn {
+    width: auto;
+}
+
+FetchArtists {
+    width: auto;
+    height: 8;
+    border: solid grey;
+    margin-top: 0;
+}
+
+FetchArtists.hidden {
+    display: none;
+}
+
+#fetch-counter {
+    text-align: right;
+    width: 100%;
+}
+
+#fetch-log {
+    max-height: 4;
+    height: 4;
+}
+
+/* Confirm-delete modal */
+ConfirmDeleteScreen {
+    align: center middle;
+}
+
+#confirm-dialog {
+    width: 40;
+    height: auto;
+    padding: 1 2;
+    border: thick $accent;
+    background: $surface;
+}
+
+#confirm-question {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1;
+}
+
+#confirm-buttons {
+    width: 100%;
+    height: auto;
+    align-horizontal: center;
+}
+
+#confirm-buttons Button {
+    margin: 0 1;
+}

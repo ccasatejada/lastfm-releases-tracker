@@ -14,15 +14,15 @@ from utils.date_utils import format_datetime
 class UserListSection(Vertical):
 
     class Selected(Message):
-        def __init__(self, user_id: int, lastfm_username: str) -> None:
+        def __init__(self, id_user: int, lastfm_username: str) -> None:
             super().__init__()
-            self.user_id = user_id
+            self.id_user = id_user
             self.lastfm_username = lastfm_username
 
     class DeleteRequested(Message):
-        def __init__(self, user_id: int) -> None:
+        def __init__(self, id_user: int) -> None:
             super().__init__()
-            self.user_id = user_id
+            self.id_user = id_user
 
     def compose(self) -> ComposeResult:
         yield AddUserBar(id='add-user-bar')
@@ -62,19 +62,19 @@ class UserListSection(Vertical):
             self._request_delete(row_key)
         else:
             row_data = self.query_one(DataTable).get_row(row_key)
-            user_id = int(row_data[0])
+            id_user = int(row_data[0])
             lastfm_username = str(row_data[1])
-            self.post_message(self.Selected(user_id, lastfm_username))
+            self.post_message(self.Selected(id_user, lastfm_username))
 
     def _request_delete(self, row_key: object) -> None:
         table = self.query_one(DataTable)
         row_data = table.get_row(row_key)
-        user_id = int(row_data[0])
+        id_user = int(row_data[0])
 
         def _on_confirm(confirmed: bool) -> None:
             if not confirmed:
                 return
             table.remove_row(row_key)
-            self.post_message(self.DeleteRequested(user_id))
+            self.post_message(self.DeleteRequested(id_user))
 
         self.app.push_screen(ConfirmDeleteScreen(), _on_confirm)

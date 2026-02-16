@@ -1,12 +1,15 @@
+from typing import Any, Sequence
+
 from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, Session
 
 from db.database import get_session
 from model.artist_repository import ArtistRepository
-from model.model import Artist, AppUser, AppUserArtist, Release
+from model.model import Artist, AppUser, AppUserArtist, AppUserRelease, Release
+from model.release_repository import ReleaseRepository
 
 
-def save_artists(all_artists, user_id):
+def save_artists(all_artists: Sequence[dict], id_user: int) -> None:
     with get_session() as session:
         repo = ArtistRepository(session)
 
@@ -25,12 +28,12 @@ def save_artists(all_artists, user_id):
                 artist = repo.create(artist_name=artist_name, artist_url=artist_url)
 
             # create or update app_user_artist link
-            link = session.get(AppUserArtist, (user_id, artist.id))
+            link = session.get(AppUserArtist, (id_user, artist.id))
             if link:
                 link.nb_scrobbles = nb_scrobbles
             else:
                 session.add(AppUserArtist(
-                    id_user=user_id,
+                    id_user=id_user,
                     id_artist=artist.id,
                     nb_scrobbles=nb_scrobbles,
                 ))
@@ -59,22 +62,37 @@ def get_all_artists_with_counts():
         return list(session.execute(stmt).all())
 
 
-def get_artist_detail(artist_id: int) -> tuple[Artist, list[AppUser], list[Release]]:
+def get_artist(id_artist: int) -> Artist:
+    with get_session() as session:
+        return _get_artist(id_artist, session)
+
+
+def get_artist_detail(id_artist: int) -> tuple[Artist, list[AppUser], list[Release]]:
     """Returns (artist, users, releases) for the given artist."""
     with get_session() as session:
-        artist = session.scalar(
-            select(Artist)
-            .where(Artist.id == artist_id)
-            .options(selectinload(Artist.releases))
-        )
+        artist = _get_artist(id_artist, session)
 
-        users = list(session.scalars(
-            select(AppUser)
-            .join(AppUserArtist, AppUserArtist.id_user == AppUser.id)
-            .where(AppUserArtist.id_artist == artist_id)
-            .order_by(AppUser.lastfm_username)
-        ))
+        users = _get_users(id_artist, session)
 
         releases = sorted(artist.releases, key=lambda r: r.release_date, reverse=True)
 
         return artist, users, releases
+
+
+def _get_users(id_artist: int, session: Session) -> list[Any]:
+    users = list(session.scalars(
+        select(AppUser)
+        .join(AppUserArtist, AppUserArtist.id_user == AppUser.id)
+        .where(AppUserArtist.id_artist == id_artist)
+        .order_by(AppUser.lastfm_username)
+    ))
+    return users
+
+
+def _get_artist(id_artist: int, session: Session) -> Artist:
+    artist = session.scalar(
+        select(Artist)
+        .where(Artist.id == id_artist)
+        .options(selectinload(Artist.releases))
+    )
+    return artist

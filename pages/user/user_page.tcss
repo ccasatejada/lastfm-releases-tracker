@@ -53,9 +53,15 @@ AddUserBar Button {
     height: auto;
 }
 
+#password-input {
+    margin-top: 1;
+}
+
 /* Fetch bar */
-#fetch-bar {
+#fetch-bar,
+#submit-form {
     height: auto;
+    align: right middle;
     layout: horizontal;
 }
 
@@ -65,10 +71,35 @@ AddUserBar Button {
 
 #fetch-bar Button {
     margin-left: 1;
+    margin-top: 1;
 }
 
 #fetch-button {
     width: auto;
+
+}
+
+/* Fetch releases bar */
+#fetch-release-bar {
+    height: auto;
+    layout: horizontal;
+    margin-top: 1;
+}
+
+#artist-select {
+    width: 1fr;
+}
+
+#fetch-release-button {
+    width: auto;
+    margin-left: 1;
+}
+
+FetchReleases {
+    width: auto;
+    height: 8;
+    border: solid grey;
+    margin-top: 1;
 }
 
 /* FetchArtists progress */
@@ -78,12 +109,14 @@ FetchArtists {
     border: solid grey;
 }
 
-#fetch-counter {
+#fetch-counter,
+#fetch-release-counter {
     text-align: right;
     width: 100%;
 }
 
-#fetch-log {
+#fetch-log,
+#fetch-release-log {
     overflow-x: hidden;
     max-height: 4;
     height: 4;
@@ -91,7 +124,6 @@ FetchArtists {
 
 /* Settings */
 .setting-label {
-    margin-top: 1;
     text-style: bold;
 }
 
@@ -101,6 +133,9 @@ FetchArtists {
 }
 #submit-form {
     align: right middle;
+}
+#submit-form Button {
+    margin-top: 1;
 }
 
 

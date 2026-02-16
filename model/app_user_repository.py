@@ -15,10 +15,10 @@ class AppUserRepository(BaseRepository[AppUser]):
         stmt = select(AppUser).where(AppUser.lastfm_username == lastfm_username)
         return self.session.scalar(stmt)
 
-    def get_with_artists(self, user_id: int) -> Optional[AppUser]:
+    def get_with_artists(self, id_user: int) -> Optional[AppUser]:
         stmt = (
             select(AppUser)
-            .where(AppUser.id == user_id)
+            .where(AppUser.id == id_user)
             .options(selectinload(AppUser.user_artists))
         )
         return self.session.scalar(stmt)

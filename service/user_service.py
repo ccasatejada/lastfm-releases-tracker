@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload, Session
 
 from db.database import get_session
 from model.app_user_repository import AppUserRepository
-from model.model import AppUserArtist, AppUser, AppUserSettings
+from model.model import AppUserArtist, AppUser, AppUserSettings, Artist
 
 
 def get_users():
@@ -21,6 +21,7 @@ def get_users():
         )
     return counts, users
 
+
 def get_user(lastfm_username: str) -> AppUser:
     with get_session() as session:
         repo = AppUserRepository(session)
@@ -29,29 +30,31 @@ def get_user(lastfm_username: str) -> AppUser:
             raise ValueError(f'User "{lastfm_username}" not found in database')
     return user
 
-def get_user_with_settings(user_id: int) -> tuple[AppUser, AppUserSettings | None]:
+
+def get_user_with_settings(id_user: int) -> tuple[AppUser, AppUserSettings | None]:
     with get_session() as session:
         stmt = (
             select(AppUser)
-            .where(AppUser.id == user_id)
+            .where(AppUser.id == id_user)
             .options(selectinload(AppUser.user_settings))
         )
         user = session.scalar(stmt)
         if not user:
-            raise ValueError(f'User with id {user_id} not found')
+            raise ValueError(f'User with id {id_user} not found')
         settings = user.user_settings
     return user, settings
 
-def update_user_settings(user_id: int, min_scrobbles: int = None, releases_not_before: date = None) -> None:
+
+def update_user_settings(id_user: int, min_scrobbles: int = None, releases_not_before: date = None) -> None:
     with get_session() as session:
-        create_or_update_user_settings(session, user_id, min_scrobbles, releases_not_before)
+        create_or_update_user_settings(session, id_user, min_scrobbles, releases_not_before)
 
 
 def create_or_update_user_settings(session: Session,
-                                   user_id: int,
+                                   id_user: int,
                                    min_scrobbles: int | None = None,
                                    releases_not_before: date | None = None):
-    stmt = select(AppUser).where(AppUser.id == user_id).options(selectinload(AppUser.user_settings))
+    stmt = select(AppUser).where(AppUser.id == id_user).options(selectinload(AppUser.user_settings))
     user = session.scalar(stmt)
 
     if user.user_settings:
@@ -59,7 +62,7 @@ def create_or_update_user_settings(session: Session,
         user.user_settings.releases_not_before = releases_not_before if releases_not_before else user.user_settings.releases_not_before
     else:
         user.user_settings = AppUserSettings(
-            id_user=user_id,
+            id_user=id_user,
             min_scrobbles=min_scrobbles,
             releases_not_before=releases_not_before,
         )
@@ -79,12 +82,22 @@ def create_user(lastfm_username: str):
         create_or_update_user_settings(session, user.id)
         return user
 
-def delete_user(user_id: int):
+def get_user_artists(id_user: int) -> list[tuple[int, str]]:
     with get_session() as session:
-        repo = AppUserRepository(session)
-        repo.delete(user_id)
+        stmt = (
+            select(AppUserArtist.id_artist, Artist.artist_name)
+            .join(Artist, Artist.id == AppUserArtist.id_artist)
+            .where(AppUserArtist.id_user == id_user)
+            .order_by(Artist.artist_name)
+        )
+        return list(session.execute(stmt).all())
 
-def update_user(new_username: str, user_id: int):
+def delete_user(id_user: int):
     with get_session() as session:
         repo = AppUserRepository(session)
-        repo.update(user_id, username=new_username)
+        repo.delete(id_user)
+
+def update_user(new_username: str, id_user: int):
+    with get_session() as session:
+        repo = AppUserRepository(session)
+        repo.update(id_user, username=new_username)

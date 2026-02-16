@@ -1,3 +1,9 @@
+*.ipynb
+.pytype
+.DS_Store
+.vscode
 .idea
 .env
+.venv
 files/*
+__pycache__/

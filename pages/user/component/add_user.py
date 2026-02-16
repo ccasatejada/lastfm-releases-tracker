@@ -15,10 +15,10 @@ class AddUserBar(Horizontal):
 
     def compose(self) -> ComposeResult:
         yield Input(placeholder='Last.fm username', id='username-input')
-        yield Button('OK', id='ok-btn', variant='primary')
+        yield Button('OK', id='ok-button', variant='primary')
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == 'ok-btn':
+        if event.button.id == 'ok-button':
             self._submit()
             event.stop()
 

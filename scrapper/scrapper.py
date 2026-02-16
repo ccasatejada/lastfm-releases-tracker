@@ -3,10 +3,9 @@ from typing import Callable
 import requests
 
 from constant.constant import BASE_URL
-from db.database import get_session
-from model.app_user_repository import AppUserRepository
 from model.model import AppUser
 from scrapper.internal.fetcher import ArtistsFetcher
+from service import user_service
 
 
 def init_user(lastfm_username: str) -> AppUser:
@@ -17,14 +16,8 @@ def init_user(lastfm_username: str) -> AppUser:
         raise ValueError(f'Last.fm user "{lastfm_username}" does not exist')
     response.raise_for_status()
 
-    with get_session() as session:
-        repo = AppUserRepository(session)
+    return user_service.create_user(lastfm_username)
 
-        existing = repo.get_by_lastfm_username(lastfm_username)
-        if existing:
-            return existing
-
-        return repo.create(lastfm_username=lastfm_username)
 
 def fetch_artists(lastfm_username: str,
                   lastfm_password: str,

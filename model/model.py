@@ -4,7 +4,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import (
     DeclarativeBase, Mapped, mapped_column, relationship
 )
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import List
 
 
@@ -12,7 +12,6 @@ class Base(DeclarativeBase):
     pass
 
 
-# Mixin pour les timestamps communs
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
@@ -43,6 +42,25 @@ class AppUser(Base, TimestampMixin):
         back_populates="user",
         cascade="all, delete-orphan"
     )
+    user_settings: Mapped["AppUserSettings"] = relationship(back_populates="user", cascade="all, delete-orphan")
+
+
+class AppUserSettings(Base, TimestampMixin):
+    __tablename__ = 'app_user_settings'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    min_scrobbles: Mapped[int] = mapped_column(Integer, nullable=False, default=1000)
+    releases_not_before: Mapped[date] = mapped_column(
+        Date,
+        default=date.today() - timedelta(days=365 * 3),
+        nullable=False
+    )
+    id_user: Mapped[int] = mapped_column(
+        ForeignKey('app_users.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
+    user: Mapped["AppUser"] = relationship(back_populates="user_settings")
 
 
 class Artist(Base, TimestampMixin):
@@ -51,6 +69,7 @@ class Artist(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     artist_name: Mapped[str | None] = mapped_column(String(255))
     artist_url: Mapped[str | None] = mapped_column(String(500))
+
     # Relations
     releases: Mapped[List["Release"]] = relationship(
         back_populates="artist",
@@ -71,7 +90,6 @@ class Release(Base, TimestampMixin):
     length: Mapped[int] = mapped_column(Integer, nullable=False)  # en secondes ?
     nb_tracks: Mapped[int] = mapped_column(Integer, nullable=False)
     release_url: Mapped[str | None] = mapped_column(String(500))
-    # Foreign key CORRECTE
     id_artist: Mapped[int] = mapped_column(
         ForeignKey('artists.id', ondelete='CASCADE'),
         nullable=False
@@ -86,10 +104,8 @@ class Release(Base, TimestampMixin):
 
 
 class AppUserArtist(Base, TimestampMixin):
-    """Table de liaison many-to-many entre users et artists"""
     __tablename__ = 'app_user_artists'
 
-    # Clé primaire composite - PAS d'auto-increment !
     id_user: Mapped[int] = mapped_column(
         ForeignKey('app_users.id', ondelete='CASCADE'),
         primary_key=True
@@ -99,20 +115,16 @@ class AppUserArtist(Base, TimestampMixin):
         primary_key=True
     )
 
-    # Colonnes supplémentaires
     ignored: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     nb_scrobbles: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    # Relations
     user: Mapped["AppUser"] = relationship(back_populates="user_artists")
     artist: Mapped["Artist"] = relationship(back_populates="user_artists")
 
 
 class AppUserRelease(Base, TimestampMixin):
-    """Table de liaison many-to-many entre users et releases"""
     __tablename__ = 'app_user_releases'
 
-    # Clé primaire composite - PAS d'auto-increment !
     id_user: Mapped[int] = mapped_column(
         ForeignKey('app_users.id', ondelete='CASCADE'),
         primary_key=True
@@ -122,10 +134,8 @@ class AppUserRelease(Base, TimestampMixin):
         primary_key=True
     )
 
-    # Colonnes supplémentaires
     ignored: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     nb_scrobbles: Mapped[int | None] = mapped_column(Integer)
 
-    # Relations
     user: Mapped["AppUser"] = relationship(back_populates="user_releases")
     release: Mapped["Release"] = relationship(back_populates="user_releases")

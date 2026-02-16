@@ -1,7 +1,36 @@
+/* Master-detail layout */
+UserPage {
+    layout: horizontal;
+    height: 1fr;
+}
+
+UserListSection {
+    width: 40%;
+    height: 100%;
+    padding: 1;
+}
+
+UserListSection DataTable {
+    height: 1fr;
+}
+
+UserDetailSection {
+    width: 60%;
+    height: 100%;
+    padding: 1;
+    overflow-y: auto;
+}
+
+/* Hidden utility */
+.hidden {
+    display: none;
+}
+
+/* AddUserBar */
 AddUserBar {
     height: auto;
     layout: horizontal;
-    padding: 1 2;
+    padding: 0 0 1 0;
 }
 
 AddUserBar Input {
@@ -12,64 +41,41 @@ AddUserBar Button {
     margin-left: 1;
 }
 
-UserSection {
+/* Detail placeholder */
+#detail-placeholder {
+    width: 100%;
+    height: 100%;
+    content-align: center middle;
+    color: $text-muted;
+}
+
+#detail-content {
     height: auto;
-    padding: 0 2;
 }
 
-UserSection DataTable {
+/* Fetch bar */
+#fetch-bar {
     height: auto;
-    max-height: 16;
+    layout: horizontal;
 }
 
-#edit-bar {
-    height: auto;
-    margin-top: 1;
-}
-
-#edit-bar.hidden {
-    display: none;
-}
-
-#edit-bar Input {
+#fetch-bar Input {
     width: 1fr;
 }
 
-#edit-bar Button {
+#fetch-bar Button {
     margin-left: 1;
 }
 
-#password-input {
-    margin-top: 1;
-}
-
-#password-input.hidden {
-    display: none;
-}
-
-#fetch-bar {
-    height: 4;
-    margin-left: 1;
-    margin-top: 1;
-}
-
-#fetch-bar.hidden {
-    display: none;
-}
-
-#fetch-btn {
+#fetch-button {
     width: auto;
 }
 
+/* FetchArtists progress */
 FetchArtists {
     width: auto;
     height: 8;
     border: solid grey;
-    margin-top: 0;
-}
-
-FetchArtists.hidden {
-    display: none;
 }
 
 #fetch-counter {
@@ -78,9 +84,25 @@ FetchArtists.hidden {
 }
 
 #fetch-log {
+    overflow-x: hidden;
     max-height: 4;
     height: 4;
 }
+
+/* Settings */
+.setting-label {
+    margin-top: 1;
+    text-style: bold;
+}
+
+#min-scrobbles-input,
+#releases-not-before-input {
+    width: 100%;
+}
+#submit-form {
+    align: right middle;
+}
+
 
 /* Confirm-delete modal */
 ConfirmDeleteScreen {

@@ -1,24 +1,22 @@
 from __future__ import annotations
 
 from textual.app import ComposeResult
-from textual.containers import Vertical, VerticalScroll
-from textual.widgets import Label, Static
+from textual.containers import Vertical
+from textual.widgets import Label, Log
 
 
 class FetchArtists(Vertical):
 
     def compose(self) -> ComposeResult:
         yield Label('Artists fetched: 0', id='fetch-counter')
-        yield VerticalScroll(id='fetch-log')
+        yield Log(id='fetch-log', auto_scroll=True)
 
     def reset(self) -> None:
         self.query_one('#fetch-counter', Label).update('Artists fetched: 0')
-        self.query_one('#fetch-log', VerticalScroll).remove_children()
-        self.add_class('hidden')
+        self.query_one('#fetch-log', Log).clear()
 
-    def add_artist(self, artist_name: str, nb_scrobbles: int, count: int) -> None:
-        self.remove_class('hidden')
-        self.query_one('#fetch-counter', Label).update(f'Artists fetched: {count}')
-        log = self.query_one('#fetch-log', VerticalScroll)
-        log.mount(Static(f'- {artist_name} ({nb_scrobbles:,} scrobbles)'))
-        log.scroll_end(animate=False)
+    def add_artist(self, artist_name: str, nb_scrobbles: int) -> None:
+        log = self.query_one('#fetch-log', Log)
+        log.write_line(f'- {artist_name} ({nb_scrobbles:,} scrobbles)')
+
+        self.query_one('#fetch-counter', Label).update(f'Artists fetched: {log.line_count}')

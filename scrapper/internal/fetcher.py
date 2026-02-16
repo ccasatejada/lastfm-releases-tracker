@@ -193,7 +193,10 @@ class ReleasesFetcher(BaseFetcher):
             if nb_tracks < 5:
                 continue
 
-            release_date = date.strptime(date_str, '%d %b %Y')
+            try:
+                release_date = date.strptime(date_str, '%d %b %Y')
+            except ValueError:
+                continue
             if not release_date:
                 continue
 

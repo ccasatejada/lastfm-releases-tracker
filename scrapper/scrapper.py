@@ -33,3 +33,11 @@ def fetch_releases(lastfm_username: str,
     fetcher = ReleasesFetcher(lastfm_username, lastfm_password, id_artist)
     fetcher.fetch(on_release_fetched)
 
+def fetch_all_releases(lastfm_username: str,
+                       lastfm_password: str,
+                       on_release_fetched: Callable[[str, int], None] | None = None) -> None:
+    user = user_service.get_user(lastfm_username)
+    artists = user_service.get_user_artists(user.id)
+
+    for artist in artists:
+        fetch_releases(lastfm_username, lastfm_password, artist.id, on_release_fetched)

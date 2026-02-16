@@ -58,8 +58,15 @@ AddUserBar Button {
 }
 
 /* Fetch bar */
-#fetch-bar,
+
 #submit-form {
+    height: auto;
+    align: right middle;
+    layout: horizontal;
+}
+
+#fetch-bar,
+#fetch-all-releases-bar {
     height: auto;
     align: right middle;
     layout: horizontal;
@@ -74,11 +81,6 @@ AddUserBar Button {
     margin-top: 1;
 }
 
-#fetch-button {
-    width: auto;
-
-}
-
 /* Fetch releases bar */
 #fetch-release-bar {
     height: auto;
@@ -90,19 +92,14 @@ AddUserBar Button {
     width: 1fr;
 }
 
-#fetch-release-button {
+#fetch-release-button,
+#fetch-all-releases-button {
     width: auto;
     margin-left: 1;
 }
 
-FetchReleases {
-    width: auto;
-    height: 8;
-    border: solid grey;
-    margin-top: 1;
-}
-
-/* FetchArtists progress */
+FetchReleases,
+FetchAllReleases,
 FetchArtists {
     width: auto;
     height: 8;
@@ -110,13 +107,15 @@ FetchArtists {
 }
 
 #fetch-counter,
-#fetch-release-counter {
+#fetch-release-counter,
+#fetch-all-releases-counter {
     text-align: right;
     width: 100%;
 }
 
 #fetch-log,
-#fetch-release-log {
+#fetch-release-log,
+#fetch-all-releases-log {
     overflow-x: hidden;
     max-height: 4;
     height: 4;
@@ -137,7 +136,6 @@ FetchArtists {
 #submit-form Button {
     margin-top: 1;
 }
-
 
 /* Confirm-delete modal */
 ConfirmDeleteScreen {

@@ -85,7 +85,7 @@ def create_user(lastfm_username: str):
 def get_user_artists(id_user: int) -> list[tuple[int, str]]:
     with get_session() as session:
         stmt = (
-            select(AppUserArtist.id_artist, Artist.artist_name)
+            select(Artist.id, Artist.artist_name).select_from(AppUserArtist)
             .join(Artist, Artist.id == AppUserArtist.id_artist)
             .where(AppUserArtist.id_user == id_user)
             .order_by(Artist.artist_name)

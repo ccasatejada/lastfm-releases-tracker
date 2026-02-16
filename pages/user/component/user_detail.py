@@ -5,9 +5,10 @@ from datetime import date
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.message import Message
-from textual.widgets import Button, Input, Label, Select, Static
+from textual.widgets import Button, Input, Label, Select, Static, Rule
 
 from model.model import AppUserSettings
+from pages.user.component.fetch_all_releases import FetchAllReleases
 from pages.user.component.fetch_artists import FetchArtists
 from pages.user.component.fetch_releases import FetchReleases
 
@@ -30,6 +31,12 @@ class UserDetailSection(Vertical):
             self.lastfm_password = lastfm_password
             self.id_artist = id_artist
 
+    class FetchAllReleasesRequested(Message):
+        def __init__(self, lastfm_username: str, lastfm_password: str) -> None:
+            super().__init__()
+            self.lastfm_username = lastfm_username
+            self.lastfm_password = lastfm_password
+
     class SettingsChanged(Message):
         def __init__(self, id_user: int, min_scrobbles: int, releases_not_before: date) -> None:
             super().__init__()
@@ -48,12 +55,23 @@ class UserDetailSection(Vertical):
             with Horizontal(id='submit-form'):
                 yield Button('Save', id='save-button', variant='primary')
 
-            # fetch controls
+            yield Rule()
+
             yield Input(placeholder='Last.fm password', password=True, id='password-input')
+
+            yield Rule()
 
             with Horizontal(id='fetch-bar'):
                 yield Button('Fetch artists', id='fetch-button', variant='primary')
             yield FetchArtists(id='fetch-progress')
+
+            yield Rule()
+
+            with Horizontal(id='fetch-all-releases-bar'):
+                yield Button('Fetch all releases', id='fetch-all-releases-button', variant='primary')
+            yield FetchAllReleases(id='fetch-all-releases')
+
+            yield Rule()
 
             with Horizontal(id='fetch-release-bar'):
                 yield Select([], id='artist-select', prompt='Select an artist')
@@ -72,7 +90,6 @@ class UserDetailSection(Vertical):
         self._lastfm_username = lastfm_username
         self.query_one('#detail-placeholder').add_class('hidden')
         self.query_one('#detail-content').remove_class('hidden')
-
         self.query_one('#password-input', Input).value = env_password or ''
 
         min_input = self.query_one('#min-scrobbles-input', Input)
@@ -94,23 +111,23 @@ class UserDetailSection(Vertical):
         self.query_one(FetchArtists).reset()
         self.query_one(FetchReleases).reset()
 
-    def set_fetching(self, fetching: bool) -> None:
-        btn = self.query_one('#fetch-button', Button)
+    def _toggle_fetch(self, fetch_button_id: str, label: str, fetching: bool):
+        btn = self.query_one(f'#{fetch_button_id}', Button)
         if fetching:
             btn.disabled = True
             btn.label = 'Fetching...'
         else:
-            btn.label = 'Fetch artists'
+            btn.label = f'Fetch {label}'
             btn.disabled = False
 
+    def set_fetching(self, fetching: bool) -> None:
+        self._toggle_fetch('fetch-button', 'artists', fetching)
+
     def set_fetching_releases(self, fetching: bool) -> None:
-        btn = self.query_one('#fetch-release-button', Button)
-        if fetching:
-            btn.disabled = True
-            btn.label = 'Fetching...'
-        else:
-            btn.label = 'Fetch releases'
-            btn.disabled = False
+        self._toggle_fetch('fetch-release-button', 'releases', fetching)
+
+    def set_fetching_all_releases(self, fetching: bool) -> None:
+        self._toggle_fetch('fetch-all-releases-button', 'all releases', fetching)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == 'save-button':
@@ -119,6 +136,8 @@ class UserDetailSection(Vertical):
             self._request_fetch_artists()
         elif event.button.id == 'fetch-release-button':
             self._request_fetch_releases()
+        elif event.button.id == 'fetch-all-releases-button':
+            self._request_fetch_all_releases()
         event.stop()
 
     def _submit_settings(self) -> None:
@@ -154,4 +173,14 @@ class UserDetailSection(Vertical):
         self.query_one(FetchReleases).reset()
         self.post_message(
             self.FetchReleasesRequested(self._lastfm_username, password, artist_select.value)
+        )
+
+    def _request_fetch_all_releases(self) -> None:
+        password = self.query_one('#password-input', Input).value
+        if not password:
+            return
+        self.set_fetching_all_releases(True)
+        self.query_one(FetchAllReleases).reset()
+        self.post_message(
+            self.FetchAllReleasesRequested(self._lastfm_username, password)
         )

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, date
 from pathlib import Path
 from typing import Any, Callable
 
+import requests
 from bs4 import BeautifulSoup, ResultSet, Tag
 
 from constant.constant import BASE_URL
@@ -12,12 +13,19 @@ from scrapper.internal import login
 from service import user_service, artist_service, release_service
 from utils import thumbnail_utils, url_utils
 
+class HttpSession:
+    @classmethod
+    def set_http_session(cls, lastfm_username, lastfm_password, http_session: requests.Session = None):
+        if http_session is None:
+            http_session = login.create_lastfm_session(lastfm_username, lastfm_password)
+        return http_session
 
 class BaseFetcher:
-    def __init__(self, lastfm_username: str, lastfm_password: str):
+    def __init__(self, lastfm_username: str, lastfm_password: str, http_session: requests.Session = None):
         self.lastfm_username = lastfm_username
         self.lastfm_password = lastfm_password
-        self.http = login.create_lastfm_session(lastfm_username, lastfm_password)
+        self.http_session = HttpSession.set_http_session(self.lastfm_username, self.lastfm_password, http_session)
+
         self.user = user_service.get_user(lastfm_username)
         self.id_user = self.user.id
         _, settings = user_service.get_user_with_settings(self.id_user)
@@ -26,6 +34,9 @@ class BaseFetcher:
         self.settings = settings
         self.page = 1
         self.stop = False
+
+    def get_http_session(self):
+        return self.http_session
 
     def get_min_scrobbles(self) -> int:
         return self.settings.min_scrobbles if self.settings and self.settings.min_scrobbles else 1000
@@ -57,8 +68,9 @@ class ArtistsFetcher(BaseFetcher):
         return thumbnail_utils.artists_thumbnails_dir()
 
     def fetch(self, on_artist_fetched: Callable[[str, int], None] | None = None):
+        self.set_http_session(self.http_session)
         while not self.stop:
-            response = self.http.get(self.base_url, params={'date_preset': 'ALL', 'page': self.page})
+            response = self.http_session.get(self.base_url, params={'date_preset': 'ALL', 'page': self.page})
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -100,7 +112,7 @@ class ArtistsFetcher(BaseFetcher):
 
             img_content = None
             if img_tag and img_tag.get('src'):
-                img_response = self.http.get(img_tag['src'])
+                img_response = self.http_session.get(img_tag['src'])
                 if img_response.ok:
                     img_content = img_response.content
 
@@ -118,8 +130,8 @@ class ArtistsFetcher(BaseFetcher):
 
 
 class ReleasesFetcher(BaseFetcher):
-    def __init__(self, lastfm_username: str, lastfm_password: str, id_artist: int):
-        super().__init__(lastfm_username, lastfm_password)
+    def __init__(self, lastfm_username: str, lastfm_password: str, id_artist: int, http_session: requests.Session = None):
+        super().__init__(lastfm_username, lastfm_password, http_session)
         self.all_releases = []
         self.artist = artist_service.get_artist(id_artist)
 
@@ -131,7 +143,7 @@ class ReleasesFetcher(BaseFetcher):
         albums_url = f'{_artist_url}/+albums'
 
         while not self.stop:
-            response = self.http.get(albums_url, params={'order': 'release_date', 'page': self.page})
+            response = self.http_session.get(albums_url, params={'order': 'release_date', 'page': self.page})
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -207,7 +219,7 @@ class ReleasesFetcher(BaseFetcher):
             img_content = None
             img_tag = li.select_one('div.media-item img')
             if img_tag and img_tag.get('src'):
-                img_response = self.http.get(img_tag['src'])
+                img_response = self.http_session.get(img_tag['src'])
                 if img_response.ok:
                     img_content = img_response.content
 
@@ -215,7 +227,7 @@ class ReleasesFetcher(BaseFetcher):
             length = 0
             if release_url:
                 time.sleep(1)
-                detail_resp = self.http.get(release_url)
+                detail_resp = self.http_session.get(release_url)
                 if detail_resp.ok:
                     detail_soup = BeautifulSoup(detail_resp.text, 'html.parser')
                     dd = detail_soup.select_one('dd.catalogue-metadata-description')

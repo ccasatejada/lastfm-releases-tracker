@@ -4,7 +4,7 @@ import requests
 
 from constant.constant import BASE_URL
 from model.model import AppUser
-from scrapper.internal.fetcher import ArtistsFetcher, ReleasesFetcher
+from scrapper.internal.fetcher import ArtistsFetcher, ReleasesFetcher, BaseFetcher
 from service import user_service
 
 
@@ -29,8 +29,9 @@ def fetch_artists(lastfm_username: str,
 def fetch_releases(lastfm_username: str,
                    lastfm_password: str,
                    id_artist: int,
-                   on_release_fetched: Callable[[str, int], None] | None = None) -> None:
-    fetcher = ReleasesFetcher(lastfm_username, lastfm_password, id_artist)
+                   on_release_fetched: Callable[[str, int], None] | None = None,
+                   http_session: requests.Session = None) -> None:
+    fetcher = ReleasesFetcher(lastfm_username, lastfm_password, id_artist, http_session)
     fetcher.fetch(on_release_fetched)
 
 def fetch_all_releases(lastfm_username: str,
@@ -39,5 +40,7 @@ def fetch_all_releases(lastfm_username: str,
     user = user_service.get_user(lastfm_username)
     artists = user_service.get_user_artists(user.id)
 
+    _base = BaseFetcher(lastfm_username, lastfm_password)
+
     for artist in artists:
-        fetch_releases(lastfm_username, lastfm_password, artist.id, on_release_fetched)
+        fetch_releases(lastfm_username, lastfm_password, artist.id, on_release_fetched, _base.get_http_session())

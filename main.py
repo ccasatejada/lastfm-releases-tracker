@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import PurePath
 from typing import ClassVar
 
 from textual.app import App, ComposeResult
@@ -11,9 +12,10 @@ from pages.log.log_page import LogPane
 from pages.release.release_page import ReleasePage
 from pages.user.user_page import UserPage
 
+
 class MainApp(App[None]):
     theme: str = 'textual-light'
-    CSS_PATH: ClassVar[list[str]] = [
+    CSS_PATH: ClassVar[str | PurePath | list[str | PurePath] | None] = [
         'pages/user/user_page.tcss',
         'pages/artist/artist_page.tcss',
         'pages/log/log_page.tcss',

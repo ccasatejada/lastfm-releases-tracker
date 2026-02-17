@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Mypy
+        run: uv run mypy .
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run tests
+        run: uv run pytest --junitxml=report.xml --cov-report=json:coverage.json 2>&1 | tee pytest-output.txt
+
+      - name: Extract test count
+        if: github.ref == 'refs/heads/main'
+        id: tests
+        run: |
+          PASSED=$(grep -oP '\d+ passed' pytest-output.txt | grep -oP '\d+')
+          FAILED=$(grep -oP '\d+ failed' pytest-output.txt | grep -oP '\d+' || echo "0")
+          echo "passed=$PASSED" >> "$GITHUB_OUTPUT"
+          echo "failed=$FAILED" >> "$GITHUB_OUTPUT"
+
+      - name: Extract coverage
+        if: github.ref == 'refs/heads/main'
+        id: coverage
+        run: |
+          COV=$(python -c "import json; print(int(float(json.load(open('coverage.json'))['totals']['percent_covered'])))")
+          echo "percentage=$COV" >> "$GITHUB_OUTPUT"
+
+      - name: Tests badge
+        if: github.ref == 'refs/heads/main'
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: 03f61ec73dc92d55950a8c386e8aff14
+          filename: tests-badge.json
+          label: tests
+          message: "${{ steps.tests.outputs.passed }} passed"
+          color: ${{ steps.tests.outputs.failed == '0' && 'brightgreen' || 'red' }}
+          namedLogo: pytest
+          logoColor: white
+
+      - name: Coverage badge
+        if: github.ref == 'refs/heads/main'
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: 03f61ec73dc92d55950a8c386e8aff14
+          filename: coverage-badge.json
+          label: coverage
+          message: "${{ steps.coverage.outputs.percentage }}%"
+          valColorRange: ${{ steps.coverage.outputs.percentage }}
+          maxColorRange: 100
+          minColorRange: 0
+          namedLogo: pytest
+          logoColor: white

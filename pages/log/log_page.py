@@ -7,11 +7,11 @@ from textual.containers import Vertical
 from textual.widgets import Log
 
 # todo put it to some log conf file - with LogPane custom widget
-logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 # logging.getLogger("sqlalchemy.pool").setLevel(logging.INFO)
 # logging.getLogger("sqlalchemy.orm").setLevel(logging.INFO)
 
-DEFAULT_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+DEFAULT_FORMAT = '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 
 
 class WidgetLogHandler(logging.Handler):
@@ -77,7 +77,7 @@ class LogPane(Vertical):
         root_logger.addHandler(self._handler)
 
     def compose(self) -> ComposeResult:
-        yield Log(auto_scroll=True, id="log-widget")
+        yield Log(auto_scroll=True, id='log-widget')
 
     def on_mount(self) -> None:
         self._handler.set_widget(self.query_one(Log))

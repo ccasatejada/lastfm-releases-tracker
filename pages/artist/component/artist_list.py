@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from typing import Any
 
 from textual.app import ComposeResult
 from textual.containers import Vertical
@@ -11,7 +11,6 @@ from utils.date_utils import format_datetime
 
 
 class ArtistListSection(Vertical):
-
     class Selected(Message):
         def __init__(self, artist_id: int) -> None:
             super().__init__()
@@ -30,7 +29,7 @@ class ArtistListSection(Vertical):
         table.add_column('Updated', key='col_updated')
         table.cursor_type = 'row'
 
-    def load_artists(self, rows) -> None:
+    def load_artists(self, rows: list[tuple[Any, ...]]) -> None:
         table = self.query_one(DataTable)
         table.clear()
         for artist_id, name, nb_releases, nb_users, created_at, updated_at in rows:

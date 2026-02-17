@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+from datetime import date
+
 from requests import HTTPError
 from textual import work
 from textual.app import ComposeResult
@@ -8,21 +11,26 @@ from textual.containers import Horizontal
 from pages.user.component.add_user import AddUserBar
 from pages.user.component.fetch_all_releases import FetchAllReleases
 from pages.user.component.fetch_artists import FetchArtists
+from pages.user.component.fetch_releases import FetchReleases
 from pages.user.component.user_detail import UserDetailSection
 from pages.user.component.user_list import UserListSection
-from pages.user.component.fetch_releases import FetchReleases
-from scrapper.scrapper import fetch_artists, fetch_releases, init_user, fetch_all_releases
+from scrapper.scrapper import (
+    fetch_all_releases,
+    fetch_artists,
+    fetch_releases,
+    init_user,
+)
 from service import default_user_service, user_service
-import logging
+
 logger = logging.getLogger(__name__)
 
-class UserPage(Horizontal):
 
+class UserPage(Horizontal):
     _env_username: str | None = None
     _env_password: str | None = None
 
     def compose(self) -> ComposeResult:
-        logger.info("Loading User Page")
+        logger.info('Loading User Page')
         yield UserListSection(id='user-list-section')
         yield UserDetailSection(id='user-detail-section')
 
@@ -41,12 +49,16 @@ class UserPage(Horizontal):
         if env_username:
             try:
                 user = init_user(env_username)
-                self.app.call_from_thread(list_section.add_user, user, counts.get(user.id, 0))
+                self.app.call_from_thread(
+                    list_section.add_user, user, counts.get(user.id, 0)
+                )
             except (ValueError, HTTPError):
                 pass
 
         for user in users:
-            self.app.call_from_thread(list_section.add_user, user, counts.get(user.id, 0))
+            self.app.call_from_thread(
+                list_section.add_user, user, counts.get(user.id, 0)
+            )
 
     def on_add_user_bar_submitted(self, event: AddUserBar.Submitted) -> None:
         self._add_user(event.username)
@@ -54,20 +66,34 @@ class UserPage(Horizontal):
     def on_user_list_section_selected(self, event: UserListSection.Selected) -> None:
         self._load_user_detail(event.id_user, event.lastfm_username)
 
-    def on_user_list_section_delete_requested(self, event: UserListSection.DeleteRequested) -> None:
+    def on_user_list_section_delete_requested(
+        self, event: UserListSection.DeleteRequested
+    ) -> None:
         self._delete_user(event.id_user)
 
-    def on_user_detail_section_fetch_requested(self, event: UserDetailSection.FetchRequested) -> None:
+    def on_user_detail_section_fetch_requested(
+        self, event: UserDetailSection.FetchRequested
+    ) -> None:
         self._fetch_artists_work(event.lastfm_username, event.lastfm_password)
 
-    def on_user_detail_section_fetch_releases_requested(self, event: UserDetailSection.FetchReleasesRequested) -> None:
-        self._fetch_releases_work(event.lastfm_username, event.lastfm_password, event.id_artist)
+    def on_user_detail_section_fetch_releases_requested(
+        self, event: UserDetailSection.FetchReleasesRequested
+    ) -> None:
+        self._fetch_releases_work(
+            event.lastfm_username, event.lastfm_password, event.id_artist
+        )
 
-    def on_user_detail_section_fetch_all_releases_requested(self, event: UserDetailSection.FetchAllReleasesRequested) -> None:
+    def on_user_detail_section_fetch_all_releases_requested(
+        self, event: UserDetailSection.FetchAllReleasesRequested
+    ) -> None:
         self._fetch_all_releases_work(event.lastfm_username, event.lastfm_password)
 
-    def on_user_detail_section_settings_changed(self, event: UserDetailSection.SettingsChanged) -> None:
-        self._save_settings(event.id_user, event.min_scrobbles, event.releases_not_before)
+    def on_user_detail_section_settings_changed(
+        self, event: UserDetailSection.SettingsChanged
+    ) -> None:
+        self._save_settings(
+            event.id_user, event.min_scrobbles, event.releases_not_before
+        )
 
     @work(thread=True, exclusive=True)
     def _add_user(self, username: str) -> None:
@@ -90,7 +116,11 @@ class UserPage(Horizontal):
             )
             self.app.call_from_thread(
                 self.query_one(UserDetailSection).show_user,
-                lastfm_username, id_user, settings, env_password, artists
+                lastfm_username,
+                id_user,
+                settings,
+                env_password,
+                artists,
             )
         except Exception as e:
             self.notify(str(e), severity='error')
@@ -104,9 +134,13 @@ class UserPage(Horizontal):
             self.notify(str(e), severity='error')
 
     @work(thread=True)
-    def _save_settings(self, id_user: int, min_scrobbles: int, releases_not_before) -> None:
+    def _save_settings(
+        self, id_user: int, min_scrobbles: int, releases_not_before: date
+    ) -> None:
         try:
-            user_service.update_user_settings(id_user, min_scrobbles, releases_not_before)
+            user_service.update_user_settings(
+                id_user, min_scrobbles, releases_not_before
+            )
             self.notify('Settings saved')
         except Exception as e:
             self.notify(str(e), severity='error')
@@ -128,10 +162,14 @@ class UserPage(Horizontal):
         except Exception as e:
             self.notify(str(e), severity='error')
         finally:
-            self.app.call_from_thread(self.query_one(UserDetailSection).set_fetching, False)
+            self.app.call_from_thread(
+                self.query_one(UserDetailSection).set_fetching, False
+            )
 
     @work(thread=True, exclusive=True)
-    def _fetch_releases_work(self, lastfm_username: str, lastfm_password: str, id_artist: int) -> None:
+    def _fetch_releases_work(
+        self, lastfm_username: str, lastfm_password: str, id_artist: int
+    ) -> None:
         progress = self.query_one(FetchReleases)
 
         def on_release_fetched(release_title: str, nb_tracks: int) -> None:
@@ -148,11 +186,16 @@ class UserPage(Horizontal):
         except Exception as e:
             self.notify(str(e), severity='error')
         finally:
-            self.app.call_from_thread(self.query_one(UserDetailSection).set_fetching_releases, False)
+            self.app.call_from_thread(
+                self.query_one(UserDetailSection).set_fetching_releases, False
+            )
 
     @work(thread=True, exclusive=True)
-    def _fetch_all_releases_work(self, lastfm_username: str, lastfm_password: str) -> None:
+    def _fetch_all_releases_work(
+        self, lastfm_username: str, lastfm_password: str
+    ) -> None:
         progress = self.query_one(FetchAllReleases)
+
         def on_release_fetched(release_title: str, nb_tracks: int) -> None:
             self.app.call_from_thread(progress.add_release, release_title, nb_tracks)
 
@@ -166,4 +209,6 @@ class UserPage(Horizontal):
         except Exception as e:
             self.notify(str(e), severity='error')
         finally:
-            self.app.call_from_thread(self.query_one(UserDetailSection).set_fetching_all_releases, False)
+            self.app.call_from_thread(
+                self.query_one(UserDetailSection).set_fetching_all_releases, False
+            )

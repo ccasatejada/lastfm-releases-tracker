@@ -4,4 +4,10 @@ from pages.user.component.fetch_artists import FetchArtists
 from pages.user.component.user_detail import UserDetailSection
 from pages.user.component.user_list import UserListSection
 
-__all__ = ['AddUserBar', 'ConfirmDeleteScreen', 'FetchArtists', 'UserDetailSection', 'UserListSection']
+__all__ = [
+    'AddUserBar',
+    'ConfirmDeleteScreen',
+    'FetchArtists',
+    'UserDetailSection',
+    'UserListSection',
+]

@@ -1,11 +1,9 @@
-from typing import Any, Sequence
+from collections.abc import Sequence
 
-from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload, Session
+from sqlalchemy import select
 
 from db.database import get_session
-from model.artist_repository import ArtistRepository
-from model.model import Artist, AppUser, AppUserArtist, AppUserRelease, Release
+from model.model import AppUserRelease, Release
 from model.release_repository import ReleaseRepository
 
 
@@ -44,10 +42,12 @@ def save_releases(all_releases: Sequence[dict], id_artist: int, id_user: int) ->
 
             link = session.get(AppUserRelease, (id_user, release.id))
             if not link:
-                session.add(AppUserRelease(
-                    id_user=id_user,
-                    id_release=release.id,
-                ))
+                session.add(
+                    AppUserRelease(
+                        id_user=id_user,
+                        id_release=release.id,
+                    )
+                )
             session.flush()
 
             release_dict['id'] = release.id

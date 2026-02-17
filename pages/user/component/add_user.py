@@ -7,7 +7,6 @@ from textual.widgets import Button, Input
 
 
 class AddUserBar(Horizontal):
-
     class Submitted(Message):
         def __init__(self, username: str) -> None:
             super().__init__()

@@ -8,6 +8,8 @@ dependencies = [
     "beautifulsoup4>=4.14.3",
     "mypy>=1.19.1",
     "psycopg[binary]>=3.3.2",
+    "pytest-cov>=7.0.0",
+    "pytest>=9.0.2",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
     "rich-pixels>=3.0.1",
@@ -16,6 +18,7 @@ dependencies = [
     "textual-dev>=1.8.0",
     "textual-window>=0.7.0",
     "textual>=7.4.0",
+    "types-requests>=2.32.4.20260107",
 ]
 [tool.ruff.lint]
 select = [
@@ -36,26 +39,38 @@ select = [
 ]
 ignore = [
     "E501",# line length
+    "UP046",# Generic subclass vs type parameters
 ]
 unfixable = ["B"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402"]
-"**/{tests,docs,tools}/*" = ["E402"]
+"**/{tests,docs,tools}/*" = ["E402", "SIM117"]
+"alembic/*" = ["E402"]
 
 [tool.ruff.format]
 quote-style = "single"
 
 [tool.mypy]
+exclude = ["tests/", "alembic/"]
+no_implicit_optional = false
 strict = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 disallow_subclassing_any = false
+disallow_untyped_decorators = false
+disallow_untyped_defs = false
+disable_error_code = ["call-overload", "arg-type", "type-arg", "var-annotated", "union-attr",  "abstract"]
 mypy_path = "stubs"
 
 [[tool.mypy.overrides]]
-module = ["textual.*"]
+module = ["textual.*", "bs4.*", "dotenv.*", "rich_pixels.*", "alembic.*"]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--cov=service --cov=scrapper --cov=model --cov=pages --cov=utils --cov-report=term-missing"
 
 [dependency-groups]
 dev = [

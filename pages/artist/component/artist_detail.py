@@ -4,7 +4,7 @@ from pathlib import Path
 
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import DataTable, Label, Static, Rule
+from textual.widgets import DataTable, Label, Rule, Static
 
 from model.model import AppUser, Artist, Release
 from utils.date_utils import format_date
@@ -12,11 +12,12 @@ from utils.thumbnail_utils import get_thumbnail
 
 
 class ArtistDetailSection(Vertical):
-
     def compose(self) -> ComposeResult:
         yield Static('Select an artist', id='detail-placeholder')
 
-    async def show_artist(self, artist: Artist, users: list[AppUser], releases: list[Release]) -> None:
+    async def show_artist(
+        self, artist: Artist, users: list[AppUser], releases: list[Release]
+    ) -> None:
         await self.remove_children()
         # Header: thumbnail + name
         header_children: list[Static | Label] = []
@@ -32,16 +33,18 @@ class ArtistDetailSection(Vertical):
         # Releases sub-section
         table = DataTable(id='release-table')
         # Mount everything at once so all parents are attached first
-        await self.mount_all([
-            Horizontal(*header_children, id='artist-header'),
-            Label(artist.artist_name or '', id='artist-name'),
-            Rule(),
-            Label('Releases', classes='section-title'),
-            table,
-            Rule(),
-            Label('Users', classes='section-title'),
-            Static(usernames, id='artist-users')
-        ])
+        await self.mount_all(
+            [
+                Horizontal(*header_children, id='artist-header'),
+                Label(artist.artist_name or '', id='artist-name'),
+                Rule(),
+                Label('Releases', classes='section-title'),
+                table,
+                Rule(),
+                Label('Users', classes='section-title'),
+                Static(usernames, id='artist-users'),
+            ]
+        )
 
         table.add_column('Cover', key='col_cover', width=4)
         table.add_column('Title', key='col_title')

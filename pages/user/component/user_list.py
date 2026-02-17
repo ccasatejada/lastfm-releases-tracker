@@ -4,6 +4,7 @@ from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.message import Message
 from textual.widgets import DataTable
+from textual.widgets._data_table import RowKey
 
 from model.model import AppUser
 from pages.user.component.add_user import AddUserBar
@@ -12,7 +13,6 @@ from utils.date_utils import format_datetime
 
 
 class UserListSection(Vertical):
-
     class Selected(Message):
         def __init__(self, id_user: int, lastfm_username: str) -> None:
             super().__init__()
@@ -66,7 +66,7 @@ class UserListSection(Vertical):
             lastfm_username = str(row_data[1])
             self.post_message(self.Selected(id_user, lastfm_username))
 
-    def _request_delete(self, row_key: object) -> None:
+    def _request_delete(self, row_key: RowKey) -> None:
         table = self.query_one(DataTable)
         row_data = table.get_row(row_key)
         id_user = int(row_data[0])

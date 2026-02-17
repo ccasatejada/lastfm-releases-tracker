@@ -1,30 +1,45 @@
 import re
 import time
 from abc import abstractmethod
-from datetime import datetime, timedelta, date
+from collections.abc import Callable
+from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import requests
 from bs4 import BeautifulSoup, ResultSet, Tag
 
 from constant.constant import BASE_URL
 from scrapper.internal import login
-from service import user_service, artist_service, release_service
+from service import artist_service, release_service, user_service
 from utils import thumbnail_utils, url_utils
+
 
 class HttpSession:
     @classmethod
-    def set_http_session(cls, lastfm_username, lastfm_password, http_session: requests.Session = None):
+    def set_http_session(
+        cls,
+        lastfm_username: str,
+        lastfm_password: str,
+        http_session: requests.Session = None,
+    ) -> requests.Session:
         if http_session is None:
             http_session = login.create_lastfm_session(lastfm_username, lastfm_password)
         return http_session
 
+
 class BaseFetcher:
-    def __init__(self, lastfm_username: str, lastfm_password: str, http_session: requests.Session = None):
+    def __init__(
+        self,
+        lastfm_username: str,
+        lastfm_password: str,
+        http_session: requests.Session = None,
+    ):
         self.lastfm_username = lastfm_username
         self.lastfm_password = lastfm_password
-        self.http_session = HttpSession.set_http_session(self.lastfm_username, self.lastfm_password, http_session)
+        self.http_session = HttpSession.set_http_session(
+            self.lastfm_username, self.lastfm_password, http_session
+        )
 
         self.user = user_service.get_user(lastfm_username)
         self.id_user = self.user.id
@@ -35,42 +50,54 @@ class BaseFetcher:
         self.page = 1
         self.stop = False
 
-    def get_http_session(self):
+    def get_http_session(self) -> requests.Session:
         return self.http_session
 
     def get_min_scrobbles(self) -> int:
-        return self.settings.min_scrobbles if self.settings and self.settings.min_scrobbles else 1000
+        return (
+            self.settings.min_scrobbles
+            if self.settings and self.settings.min_scrobbles
+            else 1000
+        )
 
     def get_min_date(self) -> date:
-        return self.settings.releases_not_before \
-            if self.settings and self.settings.releases_not_before else self.default_min_date
+        return (
+            self.settings.releases_not_before
+            if self.settings and self.settings.releases_not_before
+            else self.default_min_date
+        )
 
     @abstractmethod
     def thumbnail_dir(self) -> Path:
         pass
 
     @abstractmethod
-    def fetch(self, on_fetched: Callable[[str, int], None] | None = None):
+    def fetch(self, on_fetched: Callable[[str, int], None] | None = None) -> None:
         pass
 
     @abstractmethod
-    def fetch_one_page(self, on_fetched: Callable[[str, int], None] | None, rows: Any):
+    def fetch_one_page(
+        self, on_fetched: Callable[[str, int], None] | None, rows: Any
+    ) -> None:
         pass
 
-class ArtistsFetcher(BaseFetcher):
 
+class ArtistsFetcher(BaseFetcher):
     def __init__(self, lastfm_username: str, lastfm_password: str):
         super().__init__(lastfm_username, lastfm_password)
         self.base_url = f'{BASE_URL}/fr/user/{lastfm_username}/library/artists'
         self.all_artists = []
 
-    def thumbnail_dir(self):
+    def thumbnail_dir(self) -> Path:
         return thumbnail_utils.artists_thumbnails_dir()
 
-    def fetch(self, on_artist_fetched: Callable[[str, int], None] | None = None):
-        self.set_http_session(self.http_session)
+    def fetch(
+        self, on_artist_fetched: Callable[[str, int], None] | None = None
+    ) -> None:
         while not self.stop:
-            response = self.http_session.get(self.base_url, params={'date_preset': 'ALL', 'page': self.page})
+            response = self.http_session.get(
+                self.base_url, params={'date_preset': 'ALL', 'page': self.page}
+            )
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -92,8 +119,9 @@ class ArtistsFetcher(BaseFetcher):
         artist_service.save_artists(self.all_artists, self.id_user)
         thumbnail_utils.save_thumbnails(self.all_artists, self.thumbnail_dir())
 
-    def fetch_one_page(self, on_artist_fetched: Callable[[str, int], None] | None,
-                       rows: ResultSet[Tag]) -> bool:
+    def fetch_one_page(
+        self, on_artist_fetched: Callable[[str, int], None] | None, rows: ResultSet[Tag]
+    ) -> None:
         for row in rows:
             # artist name
             name_tag = row.select_one('td.chartlist-name a')
@@ -120,7 +148,7 @@ class ArtistsFetcher(BaseFetcher):
                 'artist_name': artist_name,
                 'nb_scrobbles': nb_scrobbles,
                 'artist_url': f'{BASE_URL}{href}',
-                'img_content': img_content
+                'img_content': img_content,
             }
 
             self.all_artists.append(artist_obj)
@@ -130,20 +158,28 @@ class ArtistsFetcher(BaseFetcher):
 
 
 class ReleasesFetcher(BaseFetcher):
-    def __init__(self, lastfm_username: str, lastfm_password: str, id_artist: int, http_session: requests.Session = None):
+    def __init__(
+        self,
+        lastfm_username: str,
+        lastfm_password: str,
+        id_artist: int,
+        http_session: requests.Session = None,
+    ):
         super().__init__(lastfm_username, lastfm_password, http_session)
-        self.all_releases = []
+        self.all_releases: list[dict[str, Any]] = []
         self.artist = artist_service.get_artist(id_artist)
 
     def thumbnail_dir(self) -> Path:
         return thumbnail_utils.releases_thumbnails_dir(self.artist.id)
 
-    def fetch(self, on_fetched: Callable[[str, int], None] | None = None):
+    def fetch(self, on_fetched: Callable[[str, int], None] | None = None) -> None:
         _artist_url = url_utils.clean_url(self.artist.artist_url)
         albums_url = f'{_artist_url}/+albums'
 
         while not self.stop:
-            response = self.http_session.get(albums_url, params={'order': 'release_date', 'page': self.page})
+            response = self.http_session.get(
+                albums_url, params={'order': 'release_date', 'page': self.page}
+            )
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -168,7 +204,9 @@ class ReleasesFetcher(BaseFetcher):
         release_service.save_releases(self.all_releases, self.artist.id, self.id_user)
         thumbnail_utils.save_thumbnails(self.all_releases, self.thumbnail_dir())
 
-    def fetch_one_page(self, on_fetched: Callable[[str, int], None] | None, rows: Any):
+    def fetch_one_page(
+        self, on_fetched: Callable[[str, int], None] | None, rows: Any
+    ) -> None:
         """
         if release has no title -> continue
         if release has no tracks (nb_tracks) -> continue

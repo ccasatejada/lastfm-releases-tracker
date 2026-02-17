@@ -6,7 +6,6 @@ from textual.widgets import Label, Log
 
 
 class FetchReleases(Vertical):
-
     def compose(self) -> ComposeResult:
         yield Label('Releases fetched: 0', id='fetch-release-counter')
         yield Log(id='fetch-release-log', auto_scroll=True)
@@ -19,4 +18,6 @@ class FetchReleases(Vertical):
         log = self.query_one('#fetch-release-log', Log)
         log.write_line(f'- {release_title} ({nb_tracks:,} tracks)')
 
-        self.query_one('#fetch-release-counter', Label).update(f'Releases fetched: {log.line_count}')
+        self.query_one('#fetch-release-counter', Label).update(
+            f'Releases fetched: {log.line_count}'
+        )

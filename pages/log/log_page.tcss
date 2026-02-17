@@ -1,0 +1,7 @@
+LogPage {
+    height: 1fr;
+}
+
+LogPage Log {
+    height: 1fr;
+}

@@ -1,20 +1,22 @@
 from __future__ import annotations
 
+import logging
 from typing import ClassVar
 
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, Header, TabbedContent, TabPane
 
 from pages.artist.artist_page import ArtistPage
+from pages.log.log_page import LogPane
 from pages.release.release_page import ReleasePage
 from pages.user.user_page import UserPage
-
 
 class MainApp(App[None]):
     theme: str = 'textual-light'
     CSS_PATH: ClassVar[list[str]] = [
         'pages/user/user_page.tcss',
         'pages/artist/artist_page.tcss',
+        'pages/log/log_page.tcss',
     ]
 
     def compose(self) -> ComposeResult:
@@ -26,6 +28,8 @@ class MainApp(App[None]):
                 yield ArtistPage()
             with TabPane('Users', id='tab-users'):
                 yield UserPage()
+            with TabPane('Logs', id='tab-logs'):
+                yield LogPane(level=logging.INFO)
         yield Footer()
 
 

@@ -13,7 +13,8 @@ from pages.user.component.user_list import UserListSection
 from pages.user.component.fetch_releases import FetchReleases
 from scrapper.scrapper import fetch_artists, fetch_releases, init_user, fetch_all_releases
 from service import default_user_service, user_service
-
+import logging
+logger = logging.getLogger(__name__)
 
 class UserPage(Horizontal):
 
@@ -21,6 +22,7 @@ class UserPage(Horizontal):
     _env_password: str | None = None
 
     def compose(self) -> ComposeResult:
+        logger.info("Loading User Page")
         yield UserListSection(id='user-list-section')
         yield UserDetailSection(id='user-detail-section')
 

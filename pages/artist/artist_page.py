@@ -7,11 +7,14 @@ from textual.containers import Horizontal
 from pages.artist.component.artist_detail import ArtistDetailSection
 from pages.artist.component.artist_list import ArtistListSection
 from service import artist_service
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ArtistPage(Horizontal):
 
     def compose(self) -> ComposeResult:
+        logger.info("Loading Artist Page")
         yield ArtistListSection(id='artist-list-section')
         yield ArtistDetailSection(id='artist-detail-section')
 

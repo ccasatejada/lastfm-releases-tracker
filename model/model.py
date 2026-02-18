@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from typing import ClassVar
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -58,6 +59,8 @@ class Artist(Base, TimestampMixin):
     artist_name: Mapped[str | None] = mapped_column(String(255))
     artist_url: Mapped[str | None] = mapped_column(String(500))
 
+    last_fetch: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
     # Relations
     releases: Mapped[list[Release]] = relationship(
         back_populates='artist', cascade='all, delete-orphan'
@@ -76,6 +79,7 @@ class Release(Base, TimestampMixin):
     length: Mapped[int] = mapped_column(Integer, nullable=False)  # en secondes ?
     nb_tracks: Mapped[int] = mapped_column(Integer, nullable=False)
     release_url: Mapped[str | None] = mapped_column(String(500))
+    hidden: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     id_artist: Mapped[int] = mapped_column(
         ForeignKey('artists.id', ondelete='CASCADE'), nullable=False
     )
@@ -110,7 +114,7 @@ class AppUserRelease(Base, TimestampMixin):
     id_user: Mapped[int] = mapped_column(
         ForeignKey('app_users.id', ondelete='CASCADE'), primary_key=True
     )
-    id_release: Mapped[int] = mapped_column(
+    id_release: ClassVar[Mapped[int]] = mapped_column(
         ForeignKey('releases.id', ondelete='CASCADE'), primary_key=True
     )
 

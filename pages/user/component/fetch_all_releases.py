@@ -16,9 +16,9 @@ class FetchAllReleases(Vertical):
         )
         self.query_one('#fetch-all-releases-log', Log).clear()
 
-    def add_release(self, release_title: str, nb_tracks: int) -> None:
+    def add_release(self, artist_name: str, release_title: str, nb_tracks: int) -> None:
         log = self.query_one('#fetch-all-releases-log', Log)
-        log.write_line(f'- {release_title} ({nb_tracks:,} tracks)')
+        log.write_line(f'- {artist_name} : {release_title} ({nb_tracks:,} tracks)')
 
         self.query_one('#fetch-all-releases-counter', Label).update(
             f'Releases fetched: {log.line_count}'

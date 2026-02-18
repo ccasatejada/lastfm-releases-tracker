@@ -13,6 +13,7 @@ from constant.constant import BASE_URL
 from scrapper.internal import login
 from service import artist_service, release_service, user_service
 from utils import thumbnail_utils, url_utils
+from utils.filter_release_utils import excluded_releases
 
 
 class HttpSession:
@@ -72,12 +73,12 @@ class BaseFetcher:
         pass
 
     @abstractmethod
-    def fetch(self, on_fetched: Callable[[str, int], None] | None = None) -> None:
+    def fetch(self, on_fetched: Callable[[dict], None] | None = None) -> None:
         pass
 
     @abstractmethod
     def fetch_one_page(
-        self, on_fetched: Callable[[str, int], None] | None, rows: Any
+        self, on_fetched: Callable[[dict], None] | None, rows: Any
     ) -> None:
         pass
 
@@ -91,9 +92,7 @@ class ArtistsFetcher(BaseFetcher):
     def thumbnail_dir(self) -> Path:
         return thumbnail_utils.artists_thumbnails_dir()
 
-    def fetch(
-        self, on_artist_fetched: Callable[[str, int], None] | None = None
-    ) -> None:
+    def fetch(self, on_artist_fetched: Callable[[dict], None] | None = None) -> None:
         while not self.stop:
             response = self.http_session.get(
                 self.base_url, params={'date_preset': 'ALL', 'page': self.page}
@@ -120,7 +119,7 @@ class ArtistsFetcher(BaseFetcher):
         thumbnail_utils.save_thumbnails(self.all_artists, self.thumbnail_dir())
 
     def fetch_one_page(
-        self, on_artist_fetched: Callable[[str, int], None] | None, rows: ResultSet[Tag]
+        self, on_artist_fetched: Callable[[dict], None] | None, rows: ResultSet[Tag]
     ) -> None:
         for row in rows:
             # artist name
@@ -154,7 +153,9 @@ class ArtistsFetcher(BaseFetcher):
             self.all_artists.append(artist_obj)
 
             if on_artist_fetched:
-                on_artist_fetched(artist_name, nb_scrobbles)
+                on_artist_fetched(
+                    dict(artist_name=artist_name, nb_scrobbles=nb_scrobbles)
+                )
 
 
 class ReleasesFetcher(BaseFetcher):
@@ -172,8 +173,8 @@ class ReleasesFetcher(BaseFetcher):
     def thumbnail_dir(self) -> Path:
         return thumbnail_utils.releases_thumbnails_dir(self.artist.id)
 
-    def fetch(self, on_fetched: Callable[[str, int], None] | None = None) -> None:
-        _artist_url = url_utils.clean_url(self.artist.artist_url)
+    def fetch(self, on_release_fetched: Callable[[dict], None] | None = None) -> None:
+        _artist_url = url_utils.clean_url(str(self.artist.artist_url))
         albums_url = f'{_artist_url}/+albums'
 
         while not self.stop:
@@ -191,7 +192,7 @@ class ReleasesFetcher(BaseFetcher):
             if not rows:
                 break
 
-            self.fetch_one_page(on_fetched, rows)
+            self.fetch_one_page(on_release_fetched, rows)
 
             if self.stop:
                 break
@@ -205,14 +206,14 @@ class ReleasesFetcher(BaseFetcher):
         thumbnail_utils.save_thumbnails(self.all_releases, self.thumbnail_dir())
 
     def fetch_one_page(
-        self, on_fetched: Callable[[str, int], None] | None, rows: Any
+        self, on_release_fetched: Callable[[dict], None] | None, rows: Any
     ) -> None:
         """
         if release has no title -> continue
         if release has no tracks (nb_tracks) -> continue
         if release has no release date -> continue
         if release has no cover -> continue
-        :param on_fetched:
+        :param on_release_fetched:
         :param rows:
         :return:
         """
@@ -223,6 +224,8 @@ class ReleasesFetcher(BaseFetcher):
                 continue
 
             release_title = h3_a.get_text(strip=True)
+            if excluded_releases(release_title):
+                continue
             release_href = h3_a.get('href')
             release_url = f'{BASE_URL}{release_href}' if release_href else None
 
@@ -247,6 +250,7 @@ class ReleasesFetcher(BaseFetcher):
                 release_date = date.strptime(date_str, '%d %b %Y')
             except ValueError:
                 continue
+
             if not release_date:
                 continue
 
@@ -284,5 +288,11 @@ class ReleasesFetcher(BaseFetcher):
             }
             self.all_releases.append(release_obj)
 
-            if on_fetched:
-                on_fetched(release_title, nb_tracks)
+            if on_release_fetched:
+                on_release_fetched(
+                    dict(
+                        artist_name=self.artist.artist_name,
+                        release_title=release_title,
+                        nb_tracks=nb_tracks,
+                    )
+                )

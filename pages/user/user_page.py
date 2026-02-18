@@ -92,7 +92,10 @@ class UserPage(Horizontal):
         self, event: UserDetailSection.SettingsChanged
     ) -> None:
         self._save_settings(
-            event.id_user, event.min_scrobbles, event.releases_not_before
+            event.id_user,
+            event.username,
+            event.min_scrobbles,
+            event.releases_not_before,
         )
 
     @work(thread=True, exclusive=True)
@@ -107,7 +110,7 @@ class UserPage(Horizontal):
     @work(thread=True, exclusive=True, group='user-detail')
     def _load_user_detail(self, id_user: int, lastfm_username: str) -> None:
         try:
-            _, settings = user_service.get_user_with_settings(id_user)
+            user, settings = user_service.get_user_with_settings(id_user)
             artists = user_service.get_user_artists(id_user)
             env_password = (
                 self._env_password
@@ -117,7 +120,7 @@ class UserPage(Horizontal):
             self.app.call_from_thread(
                 self.query_one(UserDetailSection).show_user,
                 lastfm_username,
-                id_user,
+                user,
                 settings,
                 env_password,
                 artists,
@@ -135,11 +138,11 @@ class UserPage(Horizontal):
 
     @work(thread=True)
     def _save_settings(
-        self, id_user: int, min_scrobbles: int, releases_not_before: date
+        self, id_user: int, username: str, min_scrobbles: int, releases_not_before: date
     ) -> None:
         try:
             user_service.update_user_settings(
-                id_user, min_scrobbles, releases_not_before
+                id_user, username, min_scrobbles, releases_not_before
             )
             self.notify('Settings saved')
         except Exception as e:
@@ -149,8 +152,12 @@ class UserPage(Horizontal):
     def _fetch_artists_work(self, lastfm_username: str, lastfm_password: str) -> None:
         progress = self.query_one(FetchArtists)
 
-        def on_artist_fetched(artist_name: str, nb_scrobbles: int) -> None:
-            self.app.call_from_thread(progress.add_artist, artist_name, nb_scrobbles)
+        def on_artist_fetched(result: dict) -> None:
+            self.app.call_from_thread(
+                progress.add_artist,
+                result.get('artist_name'),
+                result.get('nb_scrobbles'),
+            )
 
         try:
             fetch_artists(
@@ -172,8 +179,13 @@ class UserPage(Horizontal):
     ) -> None:
         progress = self.query_one(FetchReleases)
 
-        def on_release_fetched(release_title: str, nb_tracks: int) -> None:
-            self.app.call_from_thread(progress.add_release, release_title, nb_tracks)
+        def on_release_fetched(result: dict) -> None:
+            self.app.call_from_thread(
+                progress.add_release,
+                result.get('artist_name'),
+                result.get('release_title'),
+                result.get('nb_tracks'),
+            )
 
         try:
             fetch_releases(
@@ -196,8 +208,13 @@ class UserPage(Horizontal):
     ) -> None:
         progress = self.query_one(FetchAllReleases)
 
-        def on_release_fetched(release_title: str, nb_tracks: int) -> None:
-            self.app.call_from_thread(progress.add_release, release_title, nb_tracks)
+        def on_release_fetched(result: dict) -> None:
+            self.app.call_from_thread(
+                progress.add_release,
+                result.get('artist_name'),
+                result.get('release_title'),
+                result.get('nb_tracks'),
+            )
 
         try:
             fetch_all_releases(

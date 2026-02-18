@@ -7,7 +7,7 @@ from textual.containers import Horizontal, Vertical
 from textual.widgets import DataTable, Label, Rule, Static
 
 from model.model import AppUser, Artist, Release
-from utils.date_utils import format_date
+from utils.date_utils import compute_length, format_date
 from utils.thumbnail_utils import get_thumbnail
 
 
@@ -53,7 +53,7 @@ class ArtistDetailSection(Vertical):
         table.add_column('Tracks', key='col_tracks')
 
         for release in releases:
-            mins, secs = divmod(release.length, 60)
+            mins, secs = compute_length(release.length)
             table.add_row(
                 '▣',
                 release.release_title,

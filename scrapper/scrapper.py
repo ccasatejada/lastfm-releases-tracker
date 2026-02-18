@@ -22,7 +22,7 @@ def init_user(lastfm_username: str) -> AppUser:
 def fetch_artists(
     lastfm_username: str,
     lastfm_password: str,
-    on_artist_fetched: Callable[[str, int], None] | None = None,
+    on_artist_fetched: Callable[[dict], None] | None = None,
 ) -> None:
     fetcher = ArtistsFetcher(lastfm_username, lastfm_password)
     fetcher.fetch(on_artist_fetched)
@@ -32,7 +32,7 @@ def fetch_releases(
     lastfm_username: str,
     lastfm_password: str,
     id_artist: int,
-    on_release_fetched: Callable[[str, int], None] | None = None,
+    on_release_fetched: Callable[[dict], None] | None = None,
     http_session: requests.Session = None,
 ) -> None:
     fetcher = ReleasesFetcher(lastfm_username, lastfm_password, id_artist, http_session)
@@ -42,7 +42,7 @@ def fetch_releases(
 def fetch_all_releases(
     lastfm_username: str,
     lastfm_password: str,
-    on_release_fetched: Callable[[str, int], None] | None = None,
+    on_release_fetched: Callable[[dict], None] | None = None,
 ) -> None:
     user = user_service.get_user(lastfm_username)
     artists = user_service.get_user_artists(user.id)

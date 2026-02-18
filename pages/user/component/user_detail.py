@@ -7,7 +7,7 @@ from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.message import Message
 from textual.widgets import Button, Input, Label, Rule, Select, Static
 
-from model.model import AppUserSettings
+from model.model import AppUser, AppUserSettings
 from pages.user.component.fetch_all_releases import FetchAllReleases
 from pages.user.component.fetch_artists import FetchArtists
 from pages.user.component.fetch_releases import FetchReleases
@@ -40,10 +40,15 @@ class UserDetailSection(Vertical):
 
     class SettingsChanged(Message):
         def __init__(
-            self, id_user: int, min_scrobbles: int, releases_not_before: date
+            self,
+            id_user: int,
+            username: str,
+            min_scrobbles: int,
+            releases_not_before: date,
         ) -> None:
             super().__init__()
             self.id_user = id_user
+            self.username = username
             self.min_scrobbles = min_scrobbles
             self.releases_not_before = releases_not_before
 
@@ -51,6 +56,8 @@ class UserDetailSection(Vertical):
         yield Static('Select a user', id='detail-placeholder')
         with VerticalScroll(id='detail-content', classes='hidden'):
             # settings
+            yield Label('Username', classes='setting-label')
+            yield Input(placeholder='', id='username-input', type='text')
             yield Label('Minimum scrobbles', classes='setting-label')
             yield Input(placeholder='1000', id='min-scrobbles-input', type='integer')
             yield Label('Releases not before', classes='setting-label')
@@ -60,6 +67,7 @@ class UserDetailSection(Vertical):
 
             yield Rule()
 
+            yield Label('Lastfm password', classes='setting-label')
             yield Input(
                 placeholder='Last.fm password', password=True, id='password-input'
             )
@@ -92,20 +100,22 @@ class UserDetailSection(Vertical):
     def show_user(
         self,
         lastfm_username: str,
-        id_user: int,
+        user: AppUser,
         settings: AppUserSettings | None,
         env_password: str | None,
         artists: list[tuple[int, str]] | None = None,
     ) -> None:
-        self._current_id_user = id_user
+        self._current_id_user = user.id
         self._lastfm_username = lastfm_username
         self.query_one('#detail-placeholder').add_class('hidden')
         self.query_one('#detail-content').remove_class('hidden')
         self.query_one('#password-input', Input).value = env_password or ''
 
+        username_input = self.query_one('#username-input', Input)
         min_input = self.query_one('#min-scrobbles-input', Input)
         rnb_input = self.query_one('#releases-not-before-input', Input)
 
+        username_input.value = str(user.username) if user.username else ''
         if settings:
             min_input.value = str(settings.min_scrobbles)
             rnb_input.value = str(settings.releases_not_before)
@@ -154,6 +164,7 @@ class UserDetailSection(Vertical):
         event.stop()
 
     def _submit_settings(self) -> None:
+        username_str = self.query_one('#username-input', Input).value.strip()
         min_str = self.query_one('#min-scrobbles-input', Input).value.strip()
         rnb_str = self.query_one('#releases-not-before-input', Input).value.strip()
         try:
@@ -166,7 +177,7 @@ class UserDetailSection(Vertical):
             return
         self.post_message(
             self.SettingsChanged(
-                self._current_id_user, min_scrobbles, releases_not_before
+                self._current_id_user, username_str, min_scrobbles, releases_not_before
             )
         )
 

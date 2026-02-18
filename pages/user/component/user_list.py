@@ -57,14 +57,16 @@ class UserListSection(Vertical):
 
     def on_data_table_cell_selected(self, event: DataTable.CellSelected) -> None:
         col_key = event.cell_key.column_key
-        row_key = event.cell_key.row_key
         if col_key == 'col_delete':
+            row_key = event.cell_key.row_key
             self._request_delete(row_key)
-        else:
-            row_data = self.query_one(DataTable).get_row(row_key)
-            id_user = int(row_data[0])
-            lastfm_username = str(row_data[1])
-            self.post_message(self.Selected(id_user, lastfm_username))
+
+    def on_data_table_cell_highlighted(self, event: DataTable.CellHighlighted) -> None:
+        row_key = event.cell_key.row_key
+        row_data = self.query_one(DataTable).get_row(row_key)
+        id_user = int(row_data[0])
+        lastfm_username = str(row_data[1])
+        self.post_message(self.Selected(id_user, lastfm_username))
 
     def _request_delete(self, row_key: RowKey) -> None:
         table = self.query_one(DataTable)

@@ -213,7 +213,9 @@ class TestArtistsFetcher:
         assert fetcher.all_artists[0]['artist_name'] == 'Radiohead'
         assert fetcher.all_artists[0]['nb_scrobbles'] == 5000
         assert fetcher.all_artists[0]['img_content'] == b'fake_image_data'
-        callback.assert_called_once_with('Radiohead', 5000)
+        callback.assert_called_once_with(
+            {'artist_name': 'Radiohead', 'nb_scrobbles': 5000}
+        )
 
     def test_fetch_one_page_stops_on_low_scrobbles(self):
         from bs4 import BeautifulSoup
@@ -375,7 +377,13 @@ class TestReleasesFetcher:
         assert release['nb_tracks'] == 12
         assert release['length'] == 53
         assert release['img_content'] == b'cover_bytes'
-        callback.assert_called_once_with('OK Computer', 12)
+        callback.assert_called_once_with(
+            {
+                'artist_name': 'Radiohead',
+                'release_title': 'OK Computer',
+                'nb_tracks': 12,
+            }
+        )
 
     def test_fetch_one_page_skips_few_tracks(self):
         from bs4 import BeautifulSoup

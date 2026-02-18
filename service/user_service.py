@@ -50,17 +50,21 @@ def get_user_with_settings(id_user: int) -> tuple[AppUser, AppUserSettings | Non
 
 
 def update_user_settings(
-    id_user: int, min_scrobbles: int = None, releases_not_before: date = None
+    id_user: int,
+    username: str = None,
+    min_scrobbles: int = None,
+    releases_not_before: date = None,
 ) -> None:
     with get_session() as session:
         create_or_update_user_settings(
-            session, id_user, min_scrobbles, releases_not_before
+            session, id_user, username, min_scrobbles, releases_not_before
         )
 
 
 def create_or_update_user_settings(
     session: Session,
     id_user: int,
+    username: str | None = None,
     min_scrobbles: int | None = None,
     releases_not_before: date | None = None,
 ) -> None:
@@ -70,6 +74,7 @@ def create_or_update_user_settings(
         .options(selectinload(AppUser.user_settings))
     )
     user: AppUser = session.scalar(stmt)  # type: ignore[assignment]
+    user.username = username
 
     if user.user_settings:
         user.user_settings.min_scrobbles = (
@@ -94,7 +99,9 @@ def create_user(lastfm_username: str) -> AppUser:
         repo = AppUserRepository(session)
         existing_user = repo.get_by_lastfm_username(lastfm_username)
         if existing_user:
-            create_or_update_user_settings(session, existing_user.id)
+            create_or_update_user_settings(
+                session, existing_user.id, existing_user.username
+            )
             return existing_user
 
         user = repo.create(lastfm_username=lastfm_username)

@@ -43,7 +43,10 @@ class ArtistListSection(Vertical):
                 key=f'artist_{artist_id}',
             )
 
-    def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
+    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        self._get_artist_detail(event)
+
+    def _get_artist_detail(self, event: DataTable.RowHighlighted) -> None:
         row_data = self.query_one(DataTable).get_row(event.row_key)
         artist_id = int(row_data[0])
         self.post_message(self.Selected(artist_id))

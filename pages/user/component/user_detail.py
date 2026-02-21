@@ -8,9 +8,7 @@ from textual.message import Message
 from textual.widgets import Button, Input, Label, Rule, Select, Static
 
 from model.model import AppUser, AppUserSettings
-from pages.user.component.fetch_all_releases import FetchAllReleases
-from pages.user.component.fetch_artists import FetchArtists
-from pages.user.component.fetch_releases import FetchReleases
+from pages.user.component.fetch import FetchAllReleases, FetchArtists, FetchReleases
 
 
 class UserDetailSection(Vertical):
@@ -74,8 +72,10 @@ class UserDetailSection(Vertical):
 
             yield Rule()
 
-            with Horizontal(id='fetch-bar'):
-                yield Button('Fetch artists', id='fetch-button', variant='primary')
+            with Horizontal(id='fetch-artist-bar'):
+                yield Button(
+                    'Fetch artists', id='fetch-artist-button', variant='primary'
+                )
             yield FetchArtists(id='fetch-progress')
 
             yield Rule()
@@ -144,7 +144,7 @@ class UserDetailSection(Vertical):
             btn.disabled = False
 
     def set_fetching(self, fetching: bool) -> None:
-        self._toggle_fetch('fetch-button', 'artists', fetching)
+        self._toggle_fetch('fetch-artist-button', 'artists', fetching)
 
     def set_fetching_releases(self, fetching: bool) -> None:
         self._toggle_fetch('fetch-release-button', 'releases', fetching)
@@ -155,7 +155,7 @@ class UserDetailSection(Vertical):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == 'save-button':
             self._submit_settings()
-        elif event.button.id == 'fetch-button':
+        elif event.button.id == 'fetch-artist-button':
             self._request_fetch_artists()
         elif event.button.id == 'fetch-release-button':
             self._request_fetch_releases()

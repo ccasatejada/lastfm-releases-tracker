@@ -48,72 +48,58 @@ AddUserBar Button {
     content-align: center middle;
     color: $text-muted;
 }
-
 #detail-content {
     height: auto;
 }
-
 #password-input {
     margin-top: 1;
 }
-
-/* Fetch bar */
-
 #submit-form {
     height: auto;
     align: right middle;
     layout: horizontal;
 }
 
-#fetch-bar,
+/* Fetch bar */
+
+#fetch-artist-bar,
 #fetch-all-releases-bar {
     height: auto;
     align: right middle;
     layout: horizontal;
 }
-
-#fetch-bar Input {
+#fetch-artist-bar Input {
     width: 1fr;
 }
-
-#fetch-bar Button {
+#fetch-artist-bar Button {
     margin-left: 1;
     margin-top: 1;
 }
-
-/* Fetch releases bar */
 #fetch-release-bar {
     height: auto;
     layout: horizontal;
     margin-top: 1;
 }
-
 #artist-select {
     width: 1fr;
 }
-
 #fetch-release-button,
 #fetch-all-releases-button {
     width: auto;
     margin-left: 1;
 }
-
-FetchReleases,
-FetchAllReleases,
-FetchArtists {
+BaseFetch {
     width: auto;
     height: 8;
     border: solid grey;
 }
-
-#fetch-counter,
+#fetch-artist-counter,
 #fetch-release-counter,
 #fetch-all-releases-counter {
     text-align: right;
     width: 100%;
 }
-
-#fetch-log,
+#fetch-artist-log,
 #fetch-release-log,
 #fetch-all-releases-log {
     overflow-x: hidden;
@@ -125,7 +111,6 @@ FetchArtists {
 .setting-label {
     text-style: bold;
 }
-
 #min-scrobbles-input,
 #releases-not-before-input {
     width: 100%;
@@ -141,7 +126,6 @@ FetchArtists {
 ConfirmDeleteScreen {
     align: center middle;
 }
-
 #confirm-dialog {
     width: 40;
     height: auto;
@@ -149,19 +133,16 @@ ConfirmDeleteScreen {
     border: thick $accent;
     background: $surface;
 }
-
 #confirm-question {
     width: 100%;
     text-align: center;
     margin-bottom: 1;
 }
-
 #confirm-buttons {
     width: 100%;
     height: auto;
     align-horizontal: center;
 }
-
 #confirm-buttons Button {
     margin: 0 1;
 }

@@ -9,9 +9,7 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal
 
 from pages.user.component.add_user import AddUserBar
-from pages.user.component.fetch_all_releases import FetchAllReleases
-from pages.user.component.fetch_artists import FetchArtists
-from pages.user.component.fetch_releases import FetchReleases
+from pages.user.component.fetch import FetchAllReleases, FetchArtists, FetchReleases
 from pages.user.component.user_detail import UserDetailSection
 from pages.user.component.user_list import UserListSection
 from scrapper.scrapper import (
@@ -154,7 +152,7 @@ class UserPage(Horizontal):
 
         def on_artist_fetched(result: dict) -> None:
             self.app.call_from_thread(
-                progress.add_artist,
+                progress.add,
                 result.get('artist_name'),
                 result.get('nb_scrobbles'),
             )
@@ -181,7 +179,7 @@ class UserPage(Horizontal):
 
         def on_release_fetched(result: dict) -> None:
             self.app.call_from_thread(
-                progress.add_release,
+                progress.add,
                 result.get('artist_name'),
                 result.get('release_title'),
                 result.get('nb_tracks'),
@@ -210,7 +208,7 @@ class UserPage(Horizontal):
 
         def on_release_fetched(result: dict) -> None:
             self.app.call_from_thread(
-                progress.add_release,
+                progress.add,
                 result.get('artist_name'),
                 result.get('release_title'),
                 result.get('nb_tracks'),

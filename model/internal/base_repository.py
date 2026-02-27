@@ -19,6 +19,17 @@ class BaseRepository(Generic[T]):
         self.session.flush()
         return instance
 
+    # def create_all(self, to_create: list[dict]) -> list[T]:
+    #     instances: list[T] = []
+    #     for tc in to_create:
+    #         instances.append(self.model(*tc))
+    #     self.session.add_all(instances)
+    #     self.session.flush()
+    #     return instances
+    #
+    # def save_all(self, to_create: list[T]) -> None:
+    #     self.session.bulk_save_objects(to_create)
+
     def get(self, id: int) -> T | None:
         return self.session.get(self.model, id)
 

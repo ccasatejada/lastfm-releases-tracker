@@ -87,7 +87,7 @@ class Release(Base, TimestampMixin):
     # Relations
     artist: Mapped[Artist] = relationship(back_populates='releases')
     user_releases: Mapped[list[AppUserRelease]] = relationship(
-        back_populates='release', cascade='all, delete-orphan'
+        back_populates='release', cascade='all, delete-orphan', lazy='selectin'
     )
 
 

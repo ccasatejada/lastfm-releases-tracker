@@ -36,22 +36,20 @@ class TestGetUser:
 
 class TestGetUsers:
     def test_returns_counts_and_users(self, mock_get_session):
-        repo_mock = MagicMock()
-        repo_mock.get_all.return_value = [
+        users = [
             AppUser(id=1, lastfm_username='alice'),
             AppUser(id=2, lastfm_username='bob'),
         ]
-
-        with mock_get_session() as session:
-            session.execute.return_value.all.return_value = [(1, 5), (2, 3)]
+        repo_mock = MagicMock()
+        repo_mock.get_users.return_value = ({1: 5, 2: 3}, users)
 
         with patch('service.user_service.get_session', mock_get_session):
             with patch(
                 'service.user_service.AppUserRepository', return_value=repo_mock
             ):
-                counts, users = user_service.get_users()
+                counts, result_users = user_service.get_users()
 
-        assert len(users) == 2
+        assert len(result_users) == 2
 
 
 class TestGetUserWithSettings:
@@ -81,16 +79,9 @@ class TestGetUserWithSettings:
 class TestCreateUser:
     def test_creates_new_user(self, mock_get_session):
         new_user = AppUser(id=1, lastfm_username='alice')
-        new_user.user_settings = None
 
         repo_mock = MagicMock()
-        repo_mock.get_by_lastfm_username.return_value = None
-        repo_mock.create.return_value = new_user
-
-        with mock_get_session() as session:
-            user_with_settings = AppUser(id=1, lastfm_username='alice')
-            user_with_settings.user_settings = None
-            session.scalar.return_value = user_with_settings
+        repo_mock.create_user.return_value = new_user
 
         with patch('service.user_service.get_session', mock_get_session):
             with patch(
@@ -105,10 +96,7 @@ class TestCreateUser:
         existing.user_settings = AppUserSettings(id=1, id_user=1, min_scrobbles=1000)
 
         repo_mock = MagicMock()
-        repo_mock.get_by_lastfm_username.return_value = existing
-
-        with mock_get_session() as session:
-            session.scalar.return_value = existing
+        repo_mock.create_user.return_value = existing
 
         with patch('service.user_service.get_session', mock_get_session):
             with patch(

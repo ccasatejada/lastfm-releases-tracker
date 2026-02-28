@@ -26,7 +26,7 @@ class UserListSection(Vertical):
 
     def compose(self) -> ComposeResult:
         yield AddUserBar(id='add-user-bar')
-        yield DataTable(id='user-table')
+        yield DataTable(id='user-list-table')
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)

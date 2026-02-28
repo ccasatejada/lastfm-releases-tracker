@@ -7,35 +7,60 @@
 ![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ccasatejada/03f61ec73dc92d55950a8c386e8aff14/raw/coverage-badge.json)
 ![CI](https://github.com/ccasatejada/lastfm-releases-tracker/actions/workflows/ci.yml/badge.svg)
 
-## copy env.example to .env file
+# Last.fm Releases Tracker
 
-### psql:
+A terminal UI app that tracks music releases for artists you listen to on Last.fm.
+
+It scrapes your Last.fm listening history, finds the artists you scrobble the most, fetches their discographies, and lets you browse everything from a clean TUI — releases sorted by date, cover art, per-user tracking.
+
+## Features
+
+- **Users** — manage multiple Last.fm accounts; each user has their own artist list and scrobble counts
+- **Artists** — browse all tracked artists with release and user counts
+- **Releases** — browse all releases across all artists, sorted by date; select one to see cover art, metadata, and per-user status
+- **Logs** — real-time log output from scraping and fetching operations
+
+## Setup
+
+### Database (PostgreSQL)
+
 ```sql
-create database lfm_release_tracker;
-create user lastfm_user with encrypted password 'password';
-grant all privileges on database lfm_release_tracker to lastfm_user;
-alter DATABASE lfm_release_tracker OWNER TO lastfm_user;
+CREATE DATABASE lfm_release_tracker;
+CREATE USER lastfm_user WITH ENCRYPTED PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE lfm_release_tracker TO lastfm_user;
+ALTER DATABASE lfm_release_tracker OWNER TO lastfm_user;
 ```
 
-## reminder and aliases
+Copy `.env.example` to `.env` and fill in your database credentials.
 
-### run application with textual (for debugging)
+### Install & run
+
+```bash
+uv sync
+uv run alembic upgrade head
+uv run python main.py
 ```
+
+---
+
+## Dev commands
+
+### Run with Textual dev console (for debugging)
+
+```bash
 textual console [-v|-x]
 textual run main.py --dev
 ```
 
-### run pre-commit via uv
-```
-uv run pre-commit run --all-files
-```
+### Linting & type checking
 
-### only mypy
-```
+```bash
+uv run pre-commit run --all-files
 uv run mypy .
 ```
 
-### run tests with coverage
-```
+### Tests with coverage
+
+```bash
 uv run pytest
 ```

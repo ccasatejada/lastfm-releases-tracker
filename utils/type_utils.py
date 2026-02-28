@@ -1,4 +1,4 @@
-import argparse
+from argparse import ArgumentTypeError
 
 
 def str_to_bool(value: str, strict: bool = False) -> bool:
@@ -13,4 +13,4 @@ def str_to_bool(value: str, strict: bool = False) -> bool:
     elif value.lower() in false_values:
         return False
     else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+        raise ArgumentTypeError('Boolean value expected.')

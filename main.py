@@ -19,6 +19,7 @@ class MainApp(App[None]):
         'pages/user/user_page.tcss',
         'pages/artist/artist_page.tcss',
         'pages/log/log_page.tcss',
+        'pages/release/release_page.tcss',
     ]
 
     def compose(self) -> ComposeResult:

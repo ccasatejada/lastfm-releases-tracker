@@ -1,11 +1,12 @@
 import datetime
 from collections.abc import Sequence
+from typing import Any
 
 from sqlalchemy import select
-from sqlalchemy.orm import Mapped, Session
+from sqlalchemy.orm import Mapped, Session, selectinload
 
 from model.internal.base_repository import BaseRepository
-from model.model import AppUserRelease, Release
+from model.model import AppUserRelease, Artist, Release
 
 
 class ReleaseRepository(BaseRepository[Release]):
@@ -67,3 +68,35 @@ class ReleaseRepository(BaseRepository[Release]):
                 )
             self.session.flush()
             release_dict['id'] = release.id
+
+    def get_all_with_artist(self) -> list[Any]:
+        """Returns list of (id, artist_name, title, date, length, nb_tracks, url) ordered by date DESC."""
+        stmt = (
+            select(
+                Release.id,
+                Artist.artist_name,
+                Release.release_title,
+                Release.release_date,
+                Release.length,
+                Release.nb_tracks,
+                Release.release_url,
+            )
+            .join(Artist, Artist.id == Release.id_artist)
+            .order_by(Release.release_date.desc())
+        )
+        return list(self.session.execute(stmt).all())
+
+    def get_with_artist_and_users(
+        self, id_release: int
+    ) -> tuple[Release | None, Artist, list[AppUserRelease]]:
+        """Returns (release, artist, user_releases) with all relationships eagerly loaded."""
+        stmt = (
+            select(Release)
+            .where(Release.id == id_release)
+            .options(
+                selectinload(Release.artist),
+                selectinload(Release.user_releases).selectinload(AppUserRelease.user),
+            )
+        )
+        release = self.session.scalar(stmt)
+        return release, release.artist, list(release.user_releases)

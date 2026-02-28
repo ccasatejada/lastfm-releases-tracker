@@ -17,7 +17,7 @@ class ArtistListSection(Vertical):
             self.artist_id = artist_id
 
     def compose(self) -> ComposeResult:
-        yield DataTable(id='artist-table')
+        yield DataTable(id='artist-list-table')
 
     def on_mount(self) -> None:
         table = self.query_one(DataTable)

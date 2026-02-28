@@ -7,13 +7,7 @@
 ![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ccasatejada/03f61ec73dc92d55950a8c386e8aff14/raw/coverage-badge.json)
 ![CI](https://github.com/ccasatejada/lastfm-releases-tracker/actions/workflows/ci.yml/badge.svg)
 
-## create a .env file with the following
-```shell
-DATABASE_HOST="localhost"
-DATABASE_USER="dbuser"
-DATABASE_PASSWORD="password"
-DATABASE_SCHEMA="lfm_release_tracker"
-```
+## copy env.example to .env file
 
 ### psql:
 ```sql

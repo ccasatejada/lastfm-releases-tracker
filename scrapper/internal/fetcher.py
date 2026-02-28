@@ -9,6 +9,7 @@ from typing import Any
 import requests
 from bs4 import BeautifulSoup, ResultSet, Tag
 
+from app_configuration.app_configuration import AppConfiguration
 from constant.constant import BASE_URL
 from scrapper.internal import login
 from service import artist_service, release_service, user_service
@@ -50,6 +51,14 @@ class BaseFetcher:
         self.settings = settings
         self.page = 1
         self.stop = False
+
+        self.app_conf = AppConfiguration()
+
+    def grab_artist_thumbnails(self) -> bool:
+        return self.app_conf.grab_artist_thumbnails
+
+    def grab_release_covers(self) -> bool:
+        return self.app_conf.grab_release_covers
 
     def get_http_session(self) -> requests.Session:
         return self.http_session
@@ -138,7 +147,7 @@ class ArtistsFetcher(BaseFetcher):
                 break
 
             img_content = None
-            if img_tag and img_tag.get('src'):
+            if self.grab_artist_thumbnails() and img_tag and img_tag.get('src'):
                 img_response = self.http_session.get(img_tag['src'])
                 if img_response.ok:
                     img_content = img_response.content
@@ -260,7 +269,7 @@ class ReleasesFetcher(BaseFetcher):
 
             img_content = None
             img_tag = li.select_one('div.media-item img')
-            if img_tag and img_tag.get('src'):
+            if self.grab_release_covers() and img_tag and img_tag.get('src'):
                 img_response = self.http_session.get(img_tag['src'])
                 if img_response.ok:
                     img_content = img_response.content

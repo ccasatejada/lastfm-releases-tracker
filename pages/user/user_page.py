@@ -153,8 +153,8 @@ class UserPage(Horizontal):
         def on_artist_fetched(result: dict) -> None:
             self.app.call_from_thread(
                 progress.add,
-                result.get('artist_name'),
-                result.get('nb_scrobbles'),
+                artist_name=result.get('artist_name'),
+                nb_scrobbles=result.get('nb_scrobbles'),
             )
 
         try:
@@ -209,9 +209,9 @@ class UserPage(Horizontal):
         def on_release_fetched(result: dict) -> None:
             self.app.call_from_thread(
                 progress.add,
-                result.get('artist_name'),
-                result.get('release_title'),
-                result.get('nb_tracks'),
+                artist_name=result.get('artist_name'),
+                release_title=result.get('release_title'),
+                nb_tracks=result.get('nb_tracks'),
             )
 
         try:

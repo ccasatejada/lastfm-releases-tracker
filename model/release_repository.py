@@ -57,6 +57,7 @@ class ReleaseRepository(BaseRepository[Release]):
                     length=release_length,
                     nb_tracks=nb_tracks,
                     release_url=release_url,
+                    id_artist=id_artist,
                 )
             link = self.session.get(AppUserRelease, (id_user, release.id))
             if not link:

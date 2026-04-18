@@ -34,7 +34,7 @@ class BaseFetch(Vertical):
     def add(self, **kwargs: Any) -> None:
         log = self.query_one(f'#{self.log_id}', Log)
         log_line = self.compute_log_line(**kwargs)
-        log.write(log_line)
+        log.write(log_line + '\n')
         self.query_one(f'#{self.counter_id}', Label).update(
             f'{self.fetch_enum.label} fetched: {log.line_count}'
         )

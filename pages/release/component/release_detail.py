@@ -3,6 +3,7 @@ from __future__ import annotations
 import webbrowser
 from pathlib import Path
 
+from textual._node_list import DuplicateIds
 from textual.app import ComposeResult
 from textual.containers import Vertical
 from textual.widgets import Button, DataTable, Label, Rule, Static
@@ -29,13 +30,17 @@ class ReleaseDetailSection(Vertical):
         children: list = []
 
         cover_path = Path(f'files/releases_covers/{release.id_artist}/{release.id}.jpg')
-        if cover_path.exists():
-            children.append(
-                Static(get_thumbnail(cover_path, resize=(20, 20)), id='release-cover')
-            )
-        else:
-            children.append(Static('No cover', id='no-cover-placeholder'))
-
+        try:
+            if cover_path.exists():
+                children.append(
+                    Static(
+                        get_thumbnail(cover_path, resize=(20, 20)), id='release-cover'
+                    )
+                )
+            else:
+                children.append(Static('No cover', id='no-cover-placeholder'))
+        except DuplicateIds:
+            pass
         mins, secs = compute_length(release.length)
         children.extend(
             [

@@ -2,8 +2,8 @@ from datetime import date
 
 import pytest
 
-from model.app_user_repository import AppUserRepository
-from model.model import AppUserSettings
+from lastfm_release_tracker.model.app_user_repository import AppUserRepository
+from lastfm_release_tracker.model.model import AppUserSettings
 
 
 class TestGetByLastfmUsername:

@@ -4,7 +4,7 @@ from datetime import datetime
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable
 
-from pages.artist.component.artist_list import ArtistListSection
+from lastfm_release_tracker.pages.artist.component.artist_list import ArtistListSection
 
 
 class _App(App):

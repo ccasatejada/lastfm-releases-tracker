@@ -1,9 +1,9 @@
 from datetime import date
 from unittest.mock import patch
 
-from model.artist_repository import ArtistRepository
-from model.model import AppUser, AppUserArtist, Artist, Release
-from service import artist_service
+from lastfm_release_tracker.model.artist_repository import ArtistRepository
+from lastfm_release_tracker.model.model import AppUser, AppUserArtist, Artist, Release
+from lastfm_release_tracker.service import artist_service
 
 
 class TestSaveArtists:
@@ -21,7 +21,10 @@ class TestSaveArtists:
             session.scalar.return_value = None  # no existing artist
             session.get.return_value = None  # no existing link
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             with patch.object(
                 ArtistRepository, 'create', return_value=new_artist
             ) as mock_create:
@@ -48,7 +51,10 @@ class TestSaveArtists:
             session.scalar.return_value = existing_artist
             session.get.return_value = existing_link
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             artist_service.save_artists(artists_data, id_user=1)
 
         assert existing_link.nb_scrobbles == 8000
@@ -63,7 +69,10 @@ class TestSaveArtists:
             session.scalar.return_value = None
             session.get.return_value = None
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             with patch.object(
                 ArtistRepository,
                 'create',
@@ -86,7 +95,10 @@ class TestGetArtist:
         with mock_get_session() as session:
             session.get.return_value = artist
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             result = artist_service.get_artist(1)
 
         assert result.artist_name == 'Radiohead'
@@ -95,7 +107,10 @@ class TestGetArtist:
         with mock_get_session() as session:
             session.get.return_value = None
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             result = artist_service.get_artist(999)
 
         assert result is None
@@ -108,11 +123,17 @@ class TestGetAllArtistsWithCounts:
             (2, 'Muse', 3, 1, None, None),
         ]
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             with mock_get_session() as session:
                 session.execute.return_value.all.return_value = rows
 
-            with patch('service.artist_service.get_session', mock_get_session):
+            with patch(
+                'lastfm_release_tracker.service.artist_service.get_session',
+                mock_get_session,
+            ):
                 result = artist_service.get_all_artists_with_counts()
 
         assert len(result) == 2
@@ -145,7 +166,10 @@ class TestGetArtistDetail:
             session.get.return_value = artist
             session.scalars.return_value = [user]
 
-        with patch('service.artist_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.artist_service.get_session',
+            mock_get_session,
+        ):
             result_artist, result_users, result_releases = (
                 artist_service.get_artist_detail(1)
             )

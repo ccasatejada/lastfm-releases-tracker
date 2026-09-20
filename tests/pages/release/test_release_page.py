@@ -4,10 +4,14 @@ from unittest.mock import patch
 
 from textual.app import App, ComposeResult
 
-from model.model import Artist, Release
-from pages.release.component.release_detail import ReleaseDetailSection
-from pages.release.component.release_list import ReleaseListSection
-from pages.release.release_page import ReleasePage
+from lastfm_release_tracker.model.model import Artist, Release
+from lastfm_release_tracker.pages.release.component.release_detail import (
+    ReleaseDetailSection,
+)
+from lastfm_release_tracker.pages.release.component.release_list import (
+    ReleaseListSection,
+)
+from lastfm_release_tracker.pages.release.release_page import ReleasePage
 
 
 class _App(App):
@@ -33,7 +37,9 @@ def _make_release(id=1, title='OK Computer') -> Release:
 class TestReleasePage:
     def test_compose_mounts_list_and_detail_sections(self):
         async def _test():
-            with patch('pages.release.release_page.release_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.release.release_page.release_service'
+            ) as mock_svc:
                 mock_svc.get_all_releases.return_value = []
                 async with _App().run_test(size=(120, 40)) as pilot:
                     await pilot.pause()
@@ -48,7 +54,9 @@ class TestReleasePage:
 
     def test_get_all_releases_called_on_mount(self):
         async def _test():
-            with patch('pages.release.release_page.release_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.release.release_page.release_service'
+            ) as mock_svc:
                 mock_svc.get_all_releases.return_value = []
                 async with _App().run_test(size=(120, 40)):
                     await asyncio.sleep(0.1)
@@ -69,7 +77,9 @@ class TestReleasePage:
         release = _make_release(1)
 
         async def _test():
-            with patch('pages.release.release_page.release_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.release.release_page.release_service'
+            ) as mock_svc:
                 mock_svc.get_all_releases.return_value = [row]
                 mock_svc.get_release_detail.return_value = (release, release.artist, [])
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -91,7 +101,9 @@ class TestReleasePage:
         release = _make_release(1)
 
         async def _test():
-            with patch('pages.release.release_page.release_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.release.release_page.release_service'
+            ) as mock_svc:
                 mock_svc.get_all_releases.return_value = []
                 mock_svc.get_release_detail.return_value = (release, release.artist, [])
                 async with _App().run_test(size=(120, 40)) as pilot:

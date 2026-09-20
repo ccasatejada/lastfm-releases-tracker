@@ -3,7 +3,9 @@ import asyncio
 from textual.app import App, ComposeResult
 from textual.widgets import Button
 
-from pages.user.component.confirm_delete import ConfirmDeleteScreen
+from lastfm_release_tracker.pages.user.component.confirm_delete import (
+    ConfirmDeleteScreen,
+)
 
 
 def _make_app(dismiss_results: list):

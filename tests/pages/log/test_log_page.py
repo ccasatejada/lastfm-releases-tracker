@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from textual.app import App, ComposeResult
 from textual.widgets import Log
 
-from pages.log.log_page import LogPane, WidgetLogHandler
+from lastfm_release_tracker.pages.log.log_page import LogPane, WidgetLogHandler
 
 
 class _App(App):

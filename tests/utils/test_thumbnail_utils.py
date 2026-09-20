@@ -1,7 +1,7 @@
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from utils.thumbnail_utils import (
+from lastfm_release_tracker.utils import thumbnail_utils
+from lastfm_release_tracker.utils.thumbnail_utils import (
     artists_thumbnails_dir,
     get_thumbnail,
     releases_thumbnails_dir,
@@ -11,30 +11,30 @@ from utils.thumbnail_utils import (
 
 class TestArtistsThumbnailsDir:
     def test_creates_and_returns_path(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(thumbnail_utils, 'CACHE_DIR', tmp_path)
         result = artists_thumbnails_dir()
         assert result.exists()
-        assert result == Path('files/artists_thumbnails')
+        assert result == tmp_path / 'artists_thumbnails'
 
     def test_idempotent(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(thumbnail_utils, 'CACHE_DIR', tmp_path)
         artists_thumbnails_dir()
         artists_thumbnails_dir()  # should not raise
 
 
 class TestReleasesThumbnailsDir:
     def test_creates_and_returns_path(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(thumbnail_utils, 'CACHE_DIR', tmp_path)
         result = releases_thumbnails_dir(42)
         assert result.exists()
-        assert result == Path('files/releases_covers/42')
+        assert result == tmp_path / 'releases_covers' / '42'
 
     def test_different_artist_ids(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(thumbnail_utils, 'CACHE_DIR', tmp_path)
         releases_thumbnails_dir(1)
         releases_thumbnails_dir(2)
-        assert Path('files/releases_covers/1').exists()
-        assert Path('files/releases_covers/2').exists()
+        assert (tmp_path / 'releases_covers' / '1').exists()
+        assert (tmp_path / 'releases_covers' / '2').exists()
 
 
 class TestSaveThumbnails:
@@ -67,7 +67,8 @@ class TestGetThumbnail:
         fake_img.write_bytes(b'fake')
         mock_pixels = MagicMock()
         with patch(
-            'utils.thumbnail_utils.Pixels.from_image_path', return_value=mock_pixels
+            'lastfm_release_tracker.utils.thumbnail_utils.Pixels.from_image_path',
+            return_value=mock_pixels,
         ) as mock_fn:
             result = get_thumbnail(fake_img, resize=(30, 30))
         mock_fn.assert_called_once_with(fake_img, resize=(30, 30))

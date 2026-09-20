@@ -1,6 +1,10 @@
 from datetime import date, datetime
 
-from utils.date_utils import compute_length, format_date, format_datetime
+from lastfm_release_tracker.utils.date_utils import (
+    compute_length,
+    format_date,
+    format_datetime,
+)
 
 
 class TestFormatDatetime:

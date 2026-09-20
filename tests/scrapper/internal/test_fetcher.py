@@ -1,8 +1,8 @@
 from datetime import date, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
-from model.model import AppUser, AppUserSettings, Artist
-from scrapper.internal.fetcher import (
+from lastfm_release_tracker.model.model import AppUser, AppUserSettings, Artist
+from lastfm_release_tracker.scrapper.internal.fetcher import (
     ArtistsFetcher,
     BaseFetcher,
     HttpSession,
@@ -38,14 +38,15 @@ def _patch_base_fetcher_deps(user=None, settings=None):
 
     patches = {
         'login': patch(
-            'scrapper.internal.fetcher.login.create_lastfm_session',
+            'lastfm_release_tracker.scrapper.internal.fetcher.login.create_lastfm_session',
             return_value=MagicMock(),
         ),
         'get_user': patch(
-            'scrapper.internal.fetcher.user_service.get_user', return_value=user
+            'lastfm_release_tracker.scrapper.internal.fetcher.user_service.get_user',
+            return_value=user,
         ),
         'get_user_with_settings': patch(
-            'scrapper.internal.fetcher.user_service.get_user_with_settings',
+            'lastfm_release_tracker.scrapper.internal.fetcher.user_service.get_user_with_settings',
             return_value=(user, settings),
         ),
     }
@@ -58,7 +59,9 @@ def _patch_base_fetcher_deps(user=None, settings=None):
 
 
 class TestHttpSession:
-    @patch('scrapper.internal.fetcher.login.create_lastfm_session')
+    @patch(
+        'lastfm_release_tracker.scrapper.internal.fetcher.login.create_lastfm_session'
+    )
     def test_creates_session_when_none(self, mock_login):
         mock_session = MagicMock()
         mock_login.return_value = mock_session
@@ -108,7 +111,7 @@ class TestBaseFetcher:
             patches['login'],
             patches['get_user'],
             patch(
-                'scrapper.internal.fetcher.user_service.get_user_with_settings',
+                'lastfm_release_tracker.scrapper.internal.fetcher.user_service.get_user_with_settings',
                 return_value=(_make_user(), None),
             ),
         ):
@@ -132,7 +135,7 @@ class TestBaseFetcher:
             patches['login'],
             patches['get_user'],
             patch(
-                'scrapper.internal.fetcher.user_service.get_user_with_settings',
+                'lastfm_release_tracker.scrapper.internal.fetcher.user_service.get_user_with_settings',
                 return_value=(_make_user(), None),
             ),
         ):
@@ -270,8 +273,8 @@ class TestArtistsFetcher:
 
         assert len(fetcher.all_artists) == 0
 
-    @patch('scrapper.internal.fetcher.thumbnail_utils')
-    @patch('scrapper.internal.fetcher.artist_service')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.thumbnail_utils')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.artist_service')
     def test_fetch_full_single_page(self, mock_artist_svc, mock_thumb):
         fetcher = self._make_fetcher()
 
@@ -332,7 +335,7 @@ class TestReleasesFetcher:
         patches = _patch_base_fetcher_deps()
         with patches['login'], patches['get_user'], patches['get_user_with_settings']:
             with patch(
-                'scrapper.internal.fetcher.artist_service.get_artist',
+                'lastfm_release_tracker.scrapper.internal.fetcher.artist_service.get_artist',
                 return_value=artist,
             ):
                 fetcher = ReleasesFetcher('testuser', 'testpass', 1)
@@ -368,7 +371,7 @@ class TestReleasesFetcher:
         rows = soup.select('li')
 
         callback = MagicMock()
-        with patch('scrapper.internal.fetcher.time.sleep'):
+        with patch('lastfm_release_tracker.scrapper.internal.fetcher.time.sleep'):
             fetcher.fetch_one_page(callback, rows)
 
         assert len(fetcher.all_releases) == 1
@@ -447,7 +450,7 @@ class TestReleasesFetcher:
         soup = BeautifulSoup(html, 'html.parser')
         rows = soup.select('li')
 
-        with patch('scrapper.internal.fetcher.time.sleep'):
+        with patch('lastfm_release_tracker.scrapper.internal.fetcher.time.sleep'):
             fetcher.fetch_one_page(None, rows)
 
         assert len(fetcher.all_releases) == 1
@@ -469,14 +472,14 @@ class TestReleasesFetcher:
         soup = BeautifulSoup(RELEASE_LI_HTML, 'html.parser')
         rows = soup.select('li')
 
-        with patch('scrapper.internal.fetcher.time.sleep'):
+        with patch('lastfm_release_tracker.scrapper.internal.fetcher.time.sleep'):
             fetcher.fetch_one_page(None, rows)
 
         assert fetcher.all_releases[0]['length'] == 0
 
-    @patch('scrapper.internal.fetcher.thumbnail_utils')
-    @patch('scrapper.internal.fetcher.release_service')
-    @patch('scrapper.internal.fetcher.url_utils')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.thumbnail_utils')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.release_service')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.url_utils')
     def test_fetch_full_single_page(self, mock_url_utils, mock_release_svc, mock_thumb):
         fetcher = self._make_fetcher()
         mock_url_utils.clean_url.return_value = 'https://www.last.fm/music/Radiohead'
@@ -507,15 +510,15 @@ class TestReleasesFetcher:
         ]
         fetcher.settings = _make_settings(releases_not_before=date(1990, 1, 1))
 
-        with patch('scrapper.internal.fetcher.time.sleep'):
+        with patch('lastfm_release_tracker.scrapper.internal.fetcher.time.sleep'):
             fetcher.fetch()
 
         mock_release_svc.save_releases.assert_called_once()
         mock_thumb.save_thumbnails.assert_called_once()
 
-    @patch('scrapper.internal.fetcher.thumbnail_utils')
-    @patch('scrapper.internal.fetcher.release_service')
-    @patch('scrapper.internal.fetcher.url_utils')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.thumbnail_utils')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.release_service')
+    @patch('lastfm_release_tracker.scrapper.internal.fetcher.url_utils')
     def test_fetch_stops_when_no_section(
         self, mock_url_utils, mock_release_svc, mock_thumb
     ):

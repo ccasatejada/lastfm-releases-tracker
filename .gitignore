@@ -6,6 +6,5 @@
 .idea
 .env
 .venv
-files/*
 __pycache__/
 htmlcov

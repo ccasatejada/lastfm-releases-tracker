@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from model.model import AppUser, AppUserSettings
-from service import user_service
+from lastfm_release_tracker.model.model import AppUser, AppUserSettings
+from lastfm_release_tracker.service import user_service
 
 
 class TestGetUser:
@@ -13,9 +13,12 @@ class TestGetUser:
         repo_mock = MagicMock()
         repo_mock.get_by_lastfm_username.return_value = user
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 result = user_service.get_user('alice')
 
@@ -26,9 +29,12 @@ class TestGetUser:
         repo_mock = MagicMock()
         repo_mock.get_by_lastfm_username.return_value = None
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 with pytest.raises(ValueError, match='not found'):
                     user_service.get_user('unknown')
@@ -43,9 +49,12 @@ class TestGetUsers:
         repo_mock = MagicMock()
         repo_mock.get_users.return_value = ({1: 5, 2: 3}, users)
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 counts, result_users = user_service.get_users()
 
@@ -61,7 +70,9 @@ class TestGetUserWithSettings:
         with mock_get_session() as session:
             session.scalar.return_value = user
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             result_user, result_settings = user_service.get_user_with_settings(1)
 
         assert result_user.lastfm_username == 'alice'
@@ -71,7 +82,9 @@ class TestGetUserWithSettings:
         with mock_get_session() as session:
             session.scalar.return_value = None
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with pytest.raises(ValueError, match='not found'):
                 user_service.get_user_with_settings(999)
 
@@ -83,9 +96,12 @@ class TestCreateUser:
         repo_mock = MagicMock()
         repo_mock.create_user.return_value = new_user
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 result = user_service.create_user('alice')
 
@@ -98,9 +114,12 @@ class TestCreateUser:
         repo_mock = MagicMock()
         repo_mock.create_user.return_value = existing
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 result = user_service.create_user('alice')
 
@@ -111,9 +130,12 @@ class TestDeleteUser:
     def test_delete_calls_repo(self, mock_get_session):
         repo_mock = MagicMock()
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 user_service.delete_user(1)
 
@@ -124,9 +146,12 @@ class TestUpdateUser:
     def test_update_calls_repo(self, mock_get_session):
         repo_mock = MagicMock()
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             with patch(
-                'service.user_service.AppUserRepository', return_value=repo_mock
+                'lastfm_release_tracker.service.user_service.AppUserRepository',
+                return_value=repo_mock,
             ):
                 user_service.update_user('new_name', 1)
 
@@ -142,7 +167,9 @@ class TestUpdateUserSettings:
         with mock_get_session() as session:
             session.scalar.return_value = user
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             user_service.update_user_settings(1, min_scrobbles=2000)
 
         assert user.user_settings.min_scrobbles == 2000
@@ -154,7 +181,9 @@ class TestUpdateUserSettings:
         with mock_get_session() as session:
             session.scalar.return_value = user
 
-        with patch('service.user_service.get_session', mock_get_session):
+        with patch(
+            'lastfm_release_tracker.service.user_service.get_session', mock_get_session
+        ):
             user_service.update_user_settings(
                 1, min_scrobbles=800, releases_not_before=date(2023, 1, 1)
             )

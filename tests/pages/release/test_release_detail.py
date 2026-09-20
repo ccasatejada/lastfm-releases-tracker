@@ -5,8 +5,10 @@ from unittest.mock import patch
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable, Static
 
-from model.model import AppUser, AppUserRelease, Artist, Release
-from pages.release.component.release_detail import ReleaseDetailSection
+from lastfm_release_tracker.model.model import AppUser, AppUserRelease, Artist, Release
+from lastfm_release_tracker.pages.release.component.release_detail import (
+    ReleaseDetailSection,
+)
 
 
 def _make_release(
@@ -149,7 +151,7 @@ class TestReleaseDetailSection:
                 )
                 await pilot.pause()
                 with patch(
-                    'pages.release.component.release_detail.webbrowser.open_new_tab'
+                    'lastfm_release_tracker.pages.release.component.release_detail.webbrowser.open_new_tab'
                 ) as mock_open:
                     await pilot.click('#open-url-button')
                     await pilot.pause()

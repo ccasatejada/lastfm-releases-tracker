@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from service import default_user_service
+from lastfm_release_tracker.service import default_user_service
 
 
 class TestGetDefaultUser:

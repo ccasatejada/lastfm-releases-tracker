@@ -4,7 +4,11 @@ import pytest
 from textual.app import App, ComposeResult
 from textual.widgets import Label
 
-from pages.user.component.fetch import FetchAllReleases, FetchArtists, FetchReleases
+from lastfm_release_tracker.pages.user.component.fetch import (
+    FetchAllReleases,
+    FetchArtists,
+    FetchReleases,
+)
 
 
 class _App(App):
@@ -107,7 +111,7 @@ class TestFetchAllReleases:
         assert result == '- Radiohead : OK Computer (12 tracks)'
 
     def test_invalid_fetch_type_raises(self):
-        from pages.user.component.fetch import BaseFetch
+        from lastfm_release_tracker.pages.user.component.fetch import BaseFetch
 
         with pytest.raises(ValueError, match='Invalid fetch type'):
 

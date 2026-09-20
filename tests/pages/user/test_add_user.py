@@ -3,7 +3,7 @@ import asyncio
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Input
 
-from pages.user.component.add_user import AddUserBar
+from lastfm_release_tracker.pages.user.component.add_user import AddUserBar
 
 
 class _App(App):

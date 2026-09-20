@@ -1,8 +1,8 @@
 from datetime import date
 
-from model.artist_repository import ArtistRepository
-from model.model import AppUser, AppUserRelease, Artist, Release
-from model.release_repository import ReleaseRepository
+from lastfm_release_tracker.model.artist_repository import ArtistRepository
+from lastfm_release_tracker.model.model import AppUser, AppUserRelease, Artist, Release
+from lastfm_release_tracker.model.release_repository import ReleaseRepository
 
 
 def _add_artist(session, name='Radiohead') -> Artist:

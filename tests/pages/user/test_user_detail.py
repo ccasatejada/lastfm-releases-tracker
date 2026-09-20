@@ -4,8 +4,8 @@ from datetime import date, datetime
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Input, Select
 
-from model.model import AppUser, AppUserSettings
-from pages.user.component.user_detail import UserDetailSection
+from lastfm_release_tracker.model.model import AppUser, AppUserSettings
+from lastfm_release_tracker.pages.user.component.user_detail import UserDetailSection
 
 
 class _App(App):

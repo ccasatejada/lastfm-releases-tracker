@@ -5,7 +5,14 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from model.model import Base
+from lastfm_release_tracker.model.model import Base
+from lastfm_release_tracker.utils import thumbnail_utils
+
+
+@pytest.fixture(autouse=True)
+def _isolated_cache_dir(tmp_path, monkeypatch):
+    """Keep tests from ever touching the real user cache directory."""
+    monkeypatch.setattr(thumbnail_utils, 'CACHE_DIR', tmp_path / 'cache')
 
 
 @pytest.fixture

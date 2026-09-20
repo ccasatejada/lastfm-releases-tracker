@@ -5,10 +5,10 @@ from unittest.mock import patch
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable
 
-from model.model import AppUser, AppUserSettings
-from pages.user.component.user_detail import UserDetailSection
-from pages.user.component.user_list import UserListSection
-from pages.user.user_page import UserPage
+from lastfm_release_tracker.model.model import AppUser, AppUserSettings
+from lastfm_release_tracker.pages.user.component.user_detail import UserDetailSection
+from lastfm_release_tracker.pages.user.component.user_list import UserListSection
+from lastfm_release_tracker.pages.user.user_page import UserPage
 
 
 class _App(App):
@@ -32,8 +32,12 @@ class TestUserPage:
     def test_compose_mounts_list_and_detail_sections(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -50,8 +54,12 @@ class TestUserPage:
     def test_get_users_called_on_mount(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)):
@@ -65,8 +73,12 @@ class TestUserPage:
 
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user, users=[user])
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -80,10 +92,15 @@ class TestUserPage:
 
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
                 patch(
-                    'pages.user.user_page.init_user', return_value=new_user
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.init_user',
+                    return_value=new_user,
                 ) as mock_init,
             ):
                 _patch_services(mock_default, mock_user)
@@ -101,8 +118,12 @@ class TestUserPage:
     def test_delete_user_worker_calls_service(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -121,8 +142,12 @@ class TestUserPage:
 
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -146,9 +171,16 @@ class TestUserPage:
 
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
-                patch('pages.user.user_page.init_user', return_value=env_user),
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.init_user',
+                    return_value=env_user,
+                ),
             ):
                 mock_default.get_default_user.return_value = ('envpass', 'envuser')
                 mock_user.get_users.return_value = ({}, [])
@@ -165,8 +197,12 @@ class TestUserPage:
 
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user)
                 mock_user.get_user_with_settings.return_value = (user, settings)
@@ -186,8 +222,12 @@ class TestUserPage:
 
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
             ):
                 _patch_services(mock_default, mock_user)
                 mock_user.get_user_with_settings.return_value = (user, settings)
@@ -209,9 +249,15 @@ class TestUserPage:
     def test_fetch_artists_work_calls_fetch_artists(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
-                patch('pages.user.user_page.fetch_artists') as mock_fetch,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.fetch_artists'
+                ) as mock_fetch,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -229,10 +275,14 @@ class TestUserPage:
     def test_fetch_artists_work_error_notifies(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
                 patch(
-                    'pages.user.user_page.fetch_artists',
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.fetch_artists',
                     side_effect=Exception('fetch failed'),
                 ),
             ):
@@ -249,9 +299,15 @@ class TestUserPage:
     def test_fetch_releases_work_calls_fetch_releases(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
-                patch('pages.user.user_page.fetch_releases') as mock_fetch,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.fetch_releases'
+                ) as mock_fetch,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)) as pilot:
@@ -269,9 +325,15 @@ class TestUserPage:
     def test_fetch_all_releases_work_calls_fetch_all_releases(self):
         async def _test():
             with (
-                patch('pages.user.user_page.default_user_service') as mock_default,
-                patch('pages.user.user_page.user_service') as mock_user,
-                patch('pages.user.user_page.fetch_all_releases') as mock_fetch,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.default_user_service'
+                ) as mock_default,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.user_service'
+                ) as mock_user,
+                patch(
+                    'lastfm_release_tracker.pages.user.user_page.fetch_all_releases'
+                ) as mock_fetch,
             ):
                 _patch_services(mock_default, mock_user)
                 async with _App().run_test(size=(120, 40)) as pilot:

@@ -8,11 +8,7 @@ from alembic import context
 
 load_dotenv()
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from model.model import Base
+from lastfm_release_tracker.model.model import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -1,5 +1,5 @@
-from model.internal.base_repository import BaseRepository
-from model.model import AppUser
+from lastfm_release_tracker.model.internal.base_repository import BaseRepository
+from lastfm_release_tracker.model.model import AppUser
 
 
 class TestBaseRepository:

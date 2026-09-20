@@ -1,4 +1,4 @@
-from utils.url_utils import clean_url
+from lastfm_release_tracker.utils.url_utils import clean_url
 
 
 class TestCleanUrl:

@@ -7,6 +7,7 @@ dependencies = [
     "alembic>=1.18.4",
     "beautifulsoup4>=4.14.3",
     "mypy>=1.19.1",
+    "platformdirs>=4.0.0",
     "psycopg[binary]>=3.3.2",
     "pytest-cov>=7.0.0",
     "pytest>=9.0.2",
@@ -21,27 +22,15 @@ dependencies = [
 ]
 
 [project.scripts]
-lastfm-rt = "app_configuration.main_app:main"
-lastfm-releases-tracker = "app_configuration.main_app:main"
+lastfm-rt = "lastfm_release_tracker.app_configuration.main_app:main"
+lastfm-releases-tracker = "lastfm_release_tracker.app_configuration.main_app:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = [
-    "app_configuration",
-    "constant",
-    "db",
-    "model",
-    "pages",
-    "scrapper",
-    "service",
-    "utils",
-]
-
-[tool.hatch.build.targets.wheel.force-include]
-"main.py" = "main.py"
+packages = ["src/lastfm_release_tracker"]
 
 [tool.ruff.lint]
 select = [
@@ -91,9 +80,8 @@ module = ["textual.*", "bs4.*", "dotenv.*", "rich_pixels.*", "alembic.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "--cov=service --cov=scrapper --cov=model --cov=pages --cov=utils --cov-report=term-missing --cov-report=html"
+addopts = "--cov=lastfm_release_tracker.service --cov=lastfm_release_tracker.scrapper --cov=lastfm_release_tracker.model --cov=lastfm_release_tracker.pages --cov=lastfm_release_tracker.utils --cov-report=term-missing --cov-report=html"
 
 [dependency-groups]
 dev = [

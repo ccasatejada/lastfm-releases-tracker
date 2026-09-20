@@ -5,10 +5,12 @@ from unittest.mock import patch
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable
 
-from model.model import Artist
-from pages.artist.artist_page import ArtistPage
-from pages.artist.component.artist_detail import ArtistDetailSection
-from pages.artist.component.artist_list import ArtistListSection
+from lastfm_release_tracker.model.model import Artist
+from lastfm_release_tracker.pages.artist.artist_page import ArtistPage
+from lastfm_release_tracker.pages.artist.component.artist_detail import (
+    ArtistDetailSection,
+)
+from lastfm_release_tracker.pages.artist.component.artist_list import ArtistListSection
 
 
 class _App(App):
@@ -27,7 +29,9 @@ def _make_artist(id: int, name: str) -> Artist:
 class TestArtistPage:
     def test_compose_mounts_list_and_detail_sections(self):
         async def _test():
-            with patch('pages.artist.artist_page.artist_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.artist.artist_page.artist_service'
+            ) as mock_svc:
                 mock_svc.get_all_artists_with_counts.return_value = []
                 async with _App().run_test(size=(120, 40)) as pilot:
                     await pilot.pause()
@@ -42,7 +46,9 @@ class TestArtistPage:
 
     def test_get_all_artists_called_on_mount(self):
         async def _test():
-            with patch('pages.artist.artist_page.artist_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.artist.artist_page.artist_service'
+            ) as mock_svc:
                 mock_svc.get_all_artists_with_counts.return_value = []
                 async with _App().run_test(size=(120, 40)):
                     await asyncio.sleep(0.1)
@@ -55,7 +61,9 @@ class TestArtistPage:
         artist = _make_artist(1, 'Radiohead')
 
         async def _test():
-            with patch('pages.artist.artist_page.artist_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.artist.artist_page.artist_service'
+            ) as mock_svc:
                 mock_svc.get_all_artists_with_counts.return_value = [row]
                 # auto-highlight on first row triggers a detail load
                 mock_svc.get_artist_detail.return_value = (artist, [], [])
@@ -72,7 +80,9 @@ class TestArtistPage:
         artist = _make_artist(1, 'Radiohead')
 
         async def _test():
-            with patch('pages.artist.artist_page.artist_service') as mock_svc:
+            with patch(
+                'lastfm_release_tracker.pages.artist.artist_page.artist_service'
+            ) as mock_svc:
                 mock_svc.get_all_artists_with_counts.return_value = []
                 mock_svc.get_artist_detail.return_value = (artist, [], [])
                 async with _App().run_test(size=(120, 40)) as pilot:

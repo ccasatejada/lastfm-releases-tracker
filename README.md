@@ -38,7 +38,7 @@ Copy `.env.example` to `.env` and fill in your database credentials.
 ```bash
 uv sync
 uv run alembic upgrade head
-uv run python main.py
+uv run python -m lastfm_release_tracker
 ```
 
 ### Install as a terminal command
@@ -50,12 +50,15 @@ uv tool install --editable .
 lastfm-rt
 ```
 
-Editable install is required: the app reads `.env` and caches covers/thumbnails
-under `files/` next to the project's source, and `--editable` keeps the
-installed command pointing at this checkout instead of a frozen copy.
-Re-running the command above after pulling changes isn't needed since it's
-editable, but re-run it if `[project.scripts]` in `pyproject.toml` changes.
-To uninstall: `uv tool uninstall lastfm-release-tracker`.
+Editable install is required: the app reads `.env` from the project root, and
+`--editable` keeps the installed command pointing at this checkout instead of
+a frozen copy. Re-running the command above after pulling changes isn't
+needed since it's editable, but re-run it if `[project.scripts]` in
+`pyproject.toml` changes. To uninstall: `uv tool uninstall lastfm-release-tracker`.
+
+Cover art and artist thumbnails are cached outside the project, under the
+platform's standard cache directory (`~/.cache/lastfm-release-tracker` on
+Linux, resolved via `platformdirs`).
 
 ---
 
@@ -65,7 +68,7 @@ To uninstall: `uv tool uninstall lastfm-release-tracker`.
 
 ```bash
 textual console [-v|-x]
-textual run main.py --dev
+uv run textual run --dev lastfm_release_tracker.app_configuration.main_app:MainApp
 ```
 
 ### Linting & type checking

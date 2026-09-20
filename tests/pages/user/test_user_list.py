@@ -6,9 +6,11 @@ from textual.coordinate import Coordinate
 from textual.widgets import DataTable
 from textual.widgets._data_table import CellKey, ColumnKey, RowKey
 
-from model.model import AppUser
-from pages.user.component.confirm_delete import ConfirmDeleteScreen
-from pages.user.component.user_list import UserListSection
+from lastfm_release_tracker.model.model import AppUser
+from lastfm_release_tracker.pages.user.component.confirm_delete import (
+    ConfirmDeleteScreen,
+)
+from lastfm_release_tracker.pages.user.component.user_list import UserListSection
 
 
 def _make_user(id: int, lastfm_username: str, username: str | None = None) -> AppUser:

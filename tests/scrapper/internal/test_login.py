@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from requests import HTTPError
 
-from scrapper.internal.login import create_lastfm_session
+from lastfm_release_tracker.scrapper.internal.login import create_lastfm_session
 
 
 def _make_session_mock(csrf='token123', redirect_url='/fr/user/_'):
@@ -25,7 +25,8 @@ class TestCreateLastfmSession:
     def test_returns_session_on_success(self):
         mock_session = _make_session_mock()
         with patch(
-            'scrapper.internal.login.requests.Session', return_value=mock_session
+            'lastfm_release_tracker.scrapper.internal.login.requests.Session',
+            return_value=mock_session,
         ):
             result = create_lastfm_session('alice', 'pass123')
         assert result is mock_session
@@ -35,7 +36,8 @@ class TestCreateLastfmSession:
             redirect_url='https://www.last.fm/login?next=...'
         )
         with patch(
-            'scrapper.internal.login.requests.Session', return_value=mock_session
+            'lastfm_release_tracker.scrapper.internal.login.requests.Session',
+            return_value=mock_session,
         ):
             with pytest.raises(ValueError, match='login failed'):
                 create_lastfm_session('alice', 'wrongpass')
@@ -44,7 +46,8 @@ class TestCreateLastfmSession:
         mock_session = _make_session_mock()
         mock_session.post.return_value.raise_for_status.side_effect = HTTPError('403')
         with patch(
-            'scrapper.internal.login.requests.Session', return_value=mock_session
+            'lastfm_release_tracker.scrapper.internal.login.requests.Session',
+            return_value=mock_session,
         ):
             with pytest.raises(HTTPError):
                 create_lastfm_session('alice', 'pass')
@@ -52,7 +55,8 @@ class TestCreateLastfmSession:
     def test_posts_correct_credentials(self):
         mock_session = _make_session_mock(csrf='mytoken')
         with patch(
-            'scrapper.internal.login.requests.Session', return_value=mock_session
+            'lastfm_release_tracker.scrapper.internal.login.requests.Session',
+            return_value=mock_session,
         ):
             create_lastfm_session('alice', 'pass123')
         data = mock_session.post.call_args.kwargs['data']

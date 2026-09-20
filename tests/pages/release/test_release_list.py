@@ -4,7 +4,9 @@ from datetime import date
 from textual.app import App, ComposeResult
 from textual.widgets import DataTable
 
-from pages.release.component.release_list import ReleaseListSection
+from lastfm_release_tracker.pages.release.component.release_list import (
+    ReleaseListSection,
+)
 
 
 def _make_row(

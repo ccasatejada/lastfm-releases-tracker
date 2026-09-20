@@ -41,6 +41,22 @@ uv run alembic upgrade head
 uv run python main.py
 ```
 
+### Install as a terminal command
+
+To call the app as `lastfm-rt` (or `lastfm-releases-tracker`) from anywhere:
+
+```bash
+uv tool install --editable .
+lastfm-rt
+```
+
+Editable install is required: the app reads `.env` and caches covers/thumbnails
+under `files/` next to the project's source, and `--editable` keeps the
+installed command pointing at this checkout instead of a frozen copy.
+Re-running the command above after pulling changes isn't needed since it's
+editable, but re-run it if `[project.scripts]` in `pyproject.toml` changes.
+To uninstall: `uv tool uninstall lastfm-release-tracker`.
+
 ---
 
 ## Dev commands
